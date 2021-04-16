@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Cofoundry.Domain.CQS;
 using Cofoundry.Core.EntityFramework;
-using Microsoft.Data.SqlClient;
 using Cofoundry.Core;
 using Cofoundry.Domain.Data;
+using MySql.Data.MySqlClient;
 
 namespace Cofoundry.Domain.Internal
 {
@@ -38,10 +38,10 @@ namespace Cofoundry.Domain.Internal
 
             await _sqlExecutor.ExecuteCommandAsync(_dbContext,
                 "Cofoundry.FailedAuthticationAttempt_Add",
-                new SqlParameter("UserAreaCode", command.UserAreaCode),
-                new SqlParameter("Username", TextFormatter.Limit(command.Username, 150)),
-                new SqlParameter("IPAddress", connectionInfo.IPAddress),
-                new SqlParameter("DateTimeNow", executionContext.ExecutionDate)
+                new MySqlParameter("UserAreaCode", command.UserAreaCode),
+                new MySqlParameter("Username", TextFormatter.Limit(command.Username, 150)),
+                new MySqlParameter("IPAddress", connectionInfo.IPAddress),
+                new MySqlParameter("DateTimeNow", executionContext.ExecutionDate)
                 );
         }
     }

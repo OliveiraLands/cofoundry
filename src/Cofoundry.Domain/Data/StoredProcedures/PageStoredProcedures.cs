@@ -1,6 +1,6 @@
 ﻿using Cofoundry.Core.EntityFramework;
+using MySql.Data.MySqlClient;
 using System;
-using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace Cofoundry.Domain.Data.Internal
@@ -42,10 +42,10 @@ namespace Cofoundry.Domain.Data.Internal
                 .ExecuteCommandWithOutputAsync<int?>(_dbContext,
                 "Cofoundry.Page_AddDraft",
                 "PageVersionId",
-                 new SqlParameter("PageId", pageId),
-                 new SqlParameter("CopyFromPageVersionId", copyFromPageVersionId),
-                 new SqlParameter("CreateDate", createDate),
-                 new SqlParameter("CreatorId", creatorId)
+                 new MySqlParameter("PageId", pageId),
+                 new MySqlParameter("CopyFromPageVersionId", copyFromPageVersionId),
+                 new MySqlParameter("CreateDate", createDate),
+                 new MySqlParameter("CreatorId", creatorId)
                  );
 
             if (!newVersionId.HasValue)
@@ -84,10 +84,10 @@ namespace Cofoundry.Domain.Data.Internal
             return _entityFrameworkSqlExecutor
                 .ExecuteCommandAsync(_dbContext,
                 "Cofoundry.Page_CopyBlocksToDraft",
-                 new SqlParameter("PageId", copyToPageId),
-                 new SqlParameter("CopyFromPageVersionId", copyFromPageVersionId),
-                 new SqlParameter("CreateDate", createDate),
-                 new SqlParameter("CreatorId", creatorId)
+                 new MySqlParameter("PageId", copyToPageId),
+                 new MySqlParameter("CopyFromPageVersionId", copyFromPageVersionId),
+                 new MySqlParameter("CreateDate", createDate),
+                 new MySqlParameter("CreatorId", creatorId)
                  );
         }
 
@@ -101,7 +101,7 @@ namespace Cofoundry.Domain.Data.Internal
             return _entityFrameworkSqlExecutor
                 .ExecuteCommandAsync(_dbContext,
                 "Cofoundry.PagePublishStatusQuery_Update",
-                 new SqlParameter("PageId", pageId)
+                 new MySqlParameter("PageId", pageId)
                  );
         }
     }

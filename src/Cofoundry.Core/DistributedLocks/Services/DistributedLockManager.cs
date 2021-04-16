@@ -1,10 +1,10 @@
 ﻿using Cofoundry.Core.Data.SimpleDatabase;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
 
 namespace Cofoundry.Core.DistributedLocks.Internal
 {
@@ -82,10 +82,10 @@ namespace Cofoundry.Core.DistributedLocks.Internal
 
             var distributedLock = (await _db.ReadAsync(query,
                 MapDistributedLock,
-                new SqlParameter("DistributedLockId", distributedLockDefinition.DistributedLockId),
-                new SqlParameter("DistributedLockName", distributedLockDefinition.Name),
-                new SqlParameter("LockingId", lockingId),
-                new SqlParameter("TimeoutInSeconds", distributedLockDefinition.Timeout.TotalSeconds)
+                new MySqlParameter("DistributedLockId", distributedLockDefinition.DistributedLockId),
+                new MySqlParameter("DistributedLockName", distributedLockDefinition.Name),
+                new MySqlParameter("LockingId", lockingId),
+                new MySqlParameter("TimeoutInSeconds", distributedLockDefinition.Timeout.TotalSeconds)
                 ))
                 .SingleOrDefault();
 
@@ -118,12 +118,12 @@ namespace Cofoundry.Core.DistributedLocks.Internal
                 ";
 
             return _db.ExecuteAsync(sql, 
-                new SqlParameter("LockingId", distributedLock.LockedByLockingId),
-                new SqlParameter("DistributedLockId", distributedLock.DistributedLockId)
+                new MySqlParameter("LockingId", distributedLock.LockedByLockingId),
+                new MySqlParameter("DistributedLockId", distributedLock.DistributedLockId)
                 );
         }
 
-        private DistributedLock MapDistributedLock(SqlDataReader reader)
+        private DistributedLock MapDistributedLock(MySqlDataReader reader)
         {
             var result = new DistributedLock();
             if (reader[nameof(result.DistributedLockId)] == null) return null;

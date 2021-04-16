@@ -1,12 +1,12 @@
 ﻿using Cofoundry.Core.Data.SimpleDatabase;
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using MySql.Data.MySqlClient;
 
 namespace Cofoundry.Core.AutoUpdate.Internal
 {
@@ -148,10 +148,10 @@ namespace Cofoundry.Core.AutoUpdate.Internal
 	                values (@Module, @Version, @Description, @ExecutionDate)";
 
             return _db.ExecuteAsync(sql,
-                new SqlParameter("Module", module),
-                new SqlParameter("Version", version),
-                new SqlParameter("Description", description),
-                new SqlParameter("ExecutionDate", DateTime.UtcNow)
+                new MySqlParameter("Module", module),
+                new MySqlParameter("Version", version),
+                new MySqlParameter("Description", description),
+                new MySqlParameter("ExecutionDate", DateTime.UtcNow)
                 );
         }
 
@@ -164,11 +164,11 @@ namespace Cofoundry.Core.AutoUpdate.Internal
 	                values (@Module, @Version, @Description, @ExecutionDate, @ExceptionMessage)";
 
                 return _db.ExecuteAsync(sql,
-                    new SqlParameter("Module", module),
-                    new SqlParameter("Version", version),
-                    new SqlParameter("Description", description),
-                    new SqlParameter("ExecutionDate", DateTime.UtcNow),
-                    new SqlParameter("ExceptionMessage", ex.ToString())
+                    new MySqlParameter("Module", module),
+                    new MySqlParameter("Version", version),
+                    new MySqlParameter("Description", description),
+                    new MySqlParameter("ExecutionDate", DateTime.UtcNow),
+                    new MySqlParameter("ExceptionMessage", ex.ToString())
                     );
             }
             catch (Exception loggingException)
@@ -294,7 +294,7 @@ namespace Cofoundry.Core.AutoUpdate.Internal
         public Task SetLockedAsync(bool isLocked)
         {
             var cmd = "update Cofoundry.AutoUpdateLock set IsLocked = @IsLocked";
-            return _db.ExecuteAsync(cmd, new SqlParameter("@IsLocked", isLocked));
+            return _db.ExecuteAsync(cmd, new MySqlParameter("@IsLocked", isLocked));
         }
 
         #endregion

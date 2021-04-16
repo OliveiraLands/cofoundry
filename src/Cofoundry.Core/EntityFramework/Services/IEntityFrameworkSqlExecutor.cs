@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
+
 
 namespace Cofoundry.Core.EntityFramework
 {
@@ -23,7 +24,7 @@ namespace Cofoundry.Core.EntityFramework
         /// <returns>
         /// An array of the results of the query.
         /// </returns>
-        Task<T[]> ExecuteQueryAsync<T>(DbContext dbContext, string spName, params SqlParameter[] sqlParams)
+        Task<T[]> ExecuteQueryAsync<T>(DbContext dbContext, string spName, params MySqlParameter[] sqlParams)
             where T : class;
 
         #endregion
@@ -40,7 +41,7 @@ namespace Cofoundry.Core.EntityFramework
         /// <returns>
         /// The result of the query. Throws an exception if more than one result is returned.
         /// </returns>
-        Task<T> ExecuteScalarAsync<T>(DbContext dbContext, string spName, params SqlParameter[] sqlParams);
+        Task<T> ExecuteScalarAsync<T>(DbContext dbContext, string spName, params MySqlParameter[] sqlParams);
 
         #endregion
 
@@ -58,7 +59,7 @@ namespace Cofoundry.Core.EntityFramework
         /// Either the number of rows affected or optionally returning the value of the 
         /// first output parameter passed in the parameters collection.
         /// </returns>
-        Task<object> ExecuteCommandAsync(DbContext dbContext, string spName, params SqlParameter[] sqlParams);
+        Task<object> ExecuteCommandAsync(DbContext dbContext, string spName, params MySqlParameter[] sqlParams);
 
         #endregion
 
@@ -80,7 +81,7 @@ namespace Cofoundry.Core.EntityFramework
         /// <returns>
         /// The value of the first output parameter in the executed query.
         /// </returns>
-        Task<T> ExecuteCommandWithOutputAsync<T>(DbContext dbContext, string spName, string outputParameterName, params SqlParameter[] sqlParams);
+        Task<T> ExecuteCommandWithOutputAsync<T>(DbContext dbContext, string spName, string outputParameterName, params MySqlParameter[] sqlParams);
 
         #endregion
     }

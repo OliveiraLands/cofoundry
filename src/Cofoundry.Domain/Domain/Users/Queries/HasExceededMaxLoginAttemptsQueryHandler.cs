@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Cofoundry.Domain.Data;
 using Cofoundry.Domain.CQS;
 using Cofoundry.Core.EntityFramework;
+using MySql.Data.MySqlClient;
 
 namespace Cofoundry.Domain.Internal
 {
@@ -44,14 +44,14 @@ namespace Cofoundry.Domain.Internal
 
             var isValid = await _sqlExecutor.ExecuteScalarAsync<int>(_dbContext,
                 "Cofoundry.FailedAuthticationAttempt_IsAttemptValid",
-                new SqlParameter("UserAreaCode", query.UserAreaCode),
-                new SqlParameter("Username", query.Username.Trim()),
-                new SqlParameter("IPAddress", connectionInfo.IPAddress),
-                new SqlParameter("DateTimeNow", executionContext.ExecutionDate),
-                new SqlParameter("MaxIPAttempts", _authenticationSettings.MaxIPAttempts),
-                new SqlParameter("MaxUsernameAttempts", _authenticationSettings.MaxUsernameAttempts),
-                new SqlParameter("MaxIPAttemptsBoundaryInMinutes", _authenticationSettings.MaxIPAttemptsBoundaryInMinutes),
-                new SqlParameter("MaxUsernameAttemptsBoundaryInMinutes", _authenticationSettings.MaxUsernameAttemptsBoundaryInMinutes)
+                new MySqlParameter("UserAreaCode", query.UserAreaCode),
+                new MySqlParameter("Username", query.Username.Trim()),
+                new MySqlParameter("IPAddress", connectionInfo.IPAddress),
+                new MySqlParameter("DateTimeNow", executionContext.ExecutionDate),
+                new MySqlParameter("MaxIPAttempts", _authenticationSettings.MaxIPAttempts),
+                new MySqlParameter("MaxUsernameAttempts", _authenticationSettings.MaxUsernameAttempts),
+                new MySqlParameter("MaxIPAttemptsBoundaryInMinutes", _authenticationSettings.MaxIPAttemptsBoundaryInMinutes),
+                new MySqlParameter("MaxUsernameAttemptsBoundaryInMinutes", _authenticationSettings.MaxUsernameAttemptsBoundaryInMinutes)
                 );
 
             return isValid != 1;

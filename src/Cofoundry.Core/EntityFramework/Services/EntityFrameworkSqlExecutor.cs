@@ -10,7 +10,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Microsoft.Data.SqlClient;
+//using Microsoft.Data.SqlClient;
+using Pomelo.EntityFrameworkCore.MySql;
+using MySql.Data.MySqlClient;
 
 namespace Cofoundry.Core.EntityFramework.Internal
 {
@@ -46,14 +48,14 @@ namespace Cofoundry.Core.EntityFramework.Internal
         /// <returns>
         /// An array of the results of the query.
         /// </returns>
-        public async virtual Task<T[]> ExecuteQueryAsync<T>(DbContext dbContext, string spName, params SqlParameter[] sqlParams)
+        public async virtual Task<T[]> ExecuteQueryAsync<T>(DbContext dbContext, string spName, params MySqlParameter[] sqlParams)
             where T : class
         {
             var results = await CreateQuery<T>(dbContext, spName, sqlParams).ToArrayAsync();
             return results;
         }
 
-        private IQueryable<T> CreateQuery<T>(DbContext dbContext, string spName, params SqlParameter[] sqlParams)
+        private IQueryable<T> CreateQuery<T>(DbContext dbContext, string spName, params MySqlParameter[] sqlParams)
             where T : class
         {
             if (sqlParams.Any())
@@ -90,7 +92,7 @@ namespace Cofoundry.Core.EntityFramework.Internal
         /// <returns>
         /// The result of the query. Throws an exception if more than one result is returned.
         /// </returns>
-        public async virtual Task<T> ExecuteScalarAsync<T>(DbContext dbContext, string spName, params SqlParameter[] sqlParams)
+        public async virtual Task<T> ExecuteScalarAsync<T>(DbContext dbContext, string spName, params MySqlParameter[] sqlParams)
         {
             // Derived from code in https://github.com/dotnet/efcore/issues/1862
             // Needs to be updated when EF Core finally supports ad-hoc queries again
@@ -150,7 +152,7 @@ namespace Cofoundry.Core.EntityFramework.Internal
         /// Either the number of rows affected or optionally returning the value of the 
         /// first output parameter passed in the parameters collection.
         /// </returns>
-        public async virtual Task<object> ExecuteCommandAsync(DbContext dbContext, string spName, params SqlParameter[] sqlParams)
+        public async virtual Task<object> ExecuteCommandAsync(DbContext dbContext, string spName, params MySqlParameter[] sqlParams)
         {
             object result = null;
 
@@ -186,7 +188,7 @@ namespace Cofoundry.Core.EntityFramework.Internal
             return result;
         }
 
-        private static object GetOutputParamValue(SqlParameter[] sqlParams)
+        private static object GetOutputParamValue(MySqlParameter[] sqlParams)
         {
             var outputParam = sqlParams.FirstOrDefault(p => p.Direction == ParameterDirection.InputOutput || p.Direction == ParameterDirection.Output);
             if (outputParam != null)
@@ -216,7 +218,7 @@ namespace Cofoundry.Core.EntityFramework.Internal
         /// <returns>
         /// The value of the first output parameter in the executed query.
         /// </returns>
-        public async virtual Task<T> ExecuteCommandWithOutputAsync<T>(DbContext dbContext, string spName, string outputParameterName, params SqlParameter[] sqlParams)
+        public async virtual Task<T> ExecuteCommandWithOutputAsync<T>(DbContext dbContext, string spName, string outputParameterName, params MySqlParameter[] sqlParams)
         {
             var outputParam = CreateOutputParameter<T>(outputParameterName);
             var modifiedParams = MergeParameters(sqlParams, outputParam);
@@ -226,16 +228,16 @@ namespace Cofoundry.Core.EntityFramework.Internal
             return ParseOutputParameter<T>(outputParam);
         }
 
-        private SqlParameter[] MergeParameters(SqlParameter[] sqlParams, SqlParameter paramToMerge)
+        private MySqlParameter[] MergeParameters(MySqlParameter[] sqlParams, MySqlParameter paramToMerge)
         {
             var modifiedParams = sqlParams
-                .Union(new SqlParameter[] { paramToMerge })
+                .Union(new MySqlParameter[] { paramToMerge })
                 .ToArray();
 
             return modifiedParams;
         }
 
-        private T ParseOutputParameter<T>(SqlParameter outputParam)
+        private T ParseOutputParameter<T>(MySqlParameter outputParam)
         {
             if (outputParam.Value == DBNull.Value) return default(T);
 
@@ -248,7 +250,7 @@ namespace Cofoundry.Core.EntityFramework.Internal
             return (T)Convert.ChangeType(outputParam.Value, typeof(T));
         }
 
-        private SqlParameter CreateOutputParameter<T>(string outputParameterName)
+        private MySqlParameter CreateOutputParameter<T>(string outputParameterName)
         {
             var outputParam = _sqlParameterFactory.CreateOutputParameterByType(outputParameterName, typeof(T));
 
@@ -260,7 +262,7 @@ namespace Cofoundry.Core.EntityFramework.Internal
 
         #region private helpers
 
-        private void FormatSqlParameters(SqlParameter[] sqlParams)
+        private void FormatSqlParameters(MySqlParameter[] sqlParams)
         {
             foreach (var xmlParam in sqlParams)
             {
@@ -272,13 +274,13 @@ namespace Cofoundry.Core.EntityFramework.Internal
                 else if (xmlParam.Value is XElement)
                 {
                     // We need to re-map xml params because EF doesn't seem to like it
-                    xmlParam.SqlDbType = SqlDbType.Xml;
+                    xmlParam.DbType = DbType.Xml;
                     xmlParam.Value = xmlParam.Value.ToString();
                 }
             }
         }
 
-        private string FormatSqlCommand(string spName, SqlParameter[] sqlParams)
+        private string FormatSqlCommand(string spName, MySqlParameter[] sqlParams)
         {
             var formattedParams = sqlParams
                 .Select(p => string.Format("@{0} {1}", p.ParameterName.Trim('@'), GetParameterDirection(p)).TrimEnd())
@@ -287,7 +289,7 @@ namespace Cofoundry.Core.EntityFramework.Internal
             return cmd;
         }
 
-        private string GetParameterDirection(SqlParameter p)
+        private string GetParameterDirection(MySqlParameter p)
         {
             if (p.Direction == ParameterDirection.InputOutput
                 || p.Direction == ParameterDirection.Output)

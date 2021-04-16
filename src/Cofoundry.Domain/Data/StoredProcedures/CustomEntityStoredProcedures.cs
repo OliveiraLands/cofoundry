@@ -1,8 +1,8 @@
 ﻿using Cofoundry.Core;
 using Cofoundry.Core.EntityFramework;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,10 +46,10 @@ namespace Cofoundry.Domain.Data.Internal
                 .ExecuteCommandWithOutputAsync<int?>(_dbContext,
                 "Cofoundry.CustomEntity_AddDraft",
                 "CustomEntityVersionId",
-                 new SqlParameter("CustomEntityId", customEntityId),
-                 new SqlParameter("CopyFromCustomEntityVersionId", copyFromCustomEntityVersionId),
-                 new SqlParameter("CreateDate", createDate),
-                 new SqlParameter("CreatorId", creatorId)
+                 new MySqlParameter("CustomEntityId", customEntityId),
+                 new MySqlParameter("CopyFromCustomEntityVersionId", copyFromCustomEntityVersionId),
+                 new MySqlParameter("CreateDate", createDate),
+                 new MySqlParameter("CreatorId", creatorId)
                  );
 
             if (!newVersionId.HasValue)
@@ -83,8 +83,8 @@ namespace Cofoundry.Domain.Data.Internal
             return _entityFrameworkSqlExecutor
                 .ExecuteCommandAsync(_dbContext,
                 "Cofoundry.CustomEntity_CopyBlocksToDraft",
-                 new SqlParameter("CustomEntityId", copyToCustomEntityId),
-                 new SqlParameter("CopyFromCustomEntityVersionId", copyFromCustomEntityIdVersionId)
+                 new MySqlParameter("CustomEntityId", copyToCustomEntityId),
+                 new MySqlParameter("CopyFromCustomEntityVersionId", copyFromCustomEntityIdVersionId)
                  );
         }
 
@@ -98,7 +98,7 @@ namespace Cofoundry.Domain.Data.Internal
             return _entityFrameworkSqlExecutor
                 .ExecuteCommandAsync(_dbContext,
                 "Cofoundry.CustomEntityPublishStatusQuery_Update",
-                 new SqlParameter("CustomEntityId", customEntityId)
+                 new MySqlParameter("CustomEntityId", customEntityId)
                  );
         }
 
@@ -122,8 +122,8 @@ namespace Cofoundry.Domain.Data.Internal
                 .ExecuteCommandWithOutputAsync<string>(_dbContext,
                     "Cofoundry.CustomEntity_ReOrder",
                     "UpdatedIds",
-                    new SqlParameter("CustomEntityDefinitionCode", customEntityDefinitionCode),
-                    new SqlParameter("CustomEntityIds", string.Join(",", orderedCustomEntityIds)),
+                    new MySqlParameter("CustomEntityDefinitionCode", customEntityDefinitionCode),
+                    new MySqlParameter("CustomEntityIds", string.Join(",", orderedCustomEntityIds)),
                     CreateNullableIntParameter("LocaleId", localeId)
                     );
 
@@ -132,9 +132,9 @@ namespace Cofoundry.Domain.Data.Internal
             return affectedIds;
         }
 
-        private SqlParameter CreateNullableIntParameter(string name, int? value)
+        private MySqlParameter CreateNullableIntParameter(string name, int? value)
         {
-            var parameter = new SqlParameter(name, System.Data.SqlDbType.Int);
+            var parameter = new MySqlParameter(name, System.Data.SqlDbType.Int);
             if (value.HasValue)
             {
                 parameter.Value = value.Value;

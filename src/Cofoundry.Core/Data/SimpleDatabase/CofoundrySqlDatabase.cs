@@ -1,10 +1,10 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
 
 namespace Cofoundry.Core.Data.SimpleDatabase.Internal
 {
@@ -25,9 +25,9 @@ namespace Cofoundry.Core.Data.SimpleDatabase.Internal
         {
             var dbConnection = _cofoundryDbConnectionFactory.GetShared();
 
-            if (dbConnection is SqlConnection)
+            if (dbConnection is MySqlConnection)
             {
-                _sqlDatabase = new SqlDatabase((SqlConnection)dbConnection);
+                _sqlDatabase = new SqlDatabase((MySqlConnection)dbConnection);
             }
             else
             {
@@ -49,7 +49,7 @@ namespace Cofoundry.Core.Data.SimpleDatabase.Internal
         /// </summary>
         /// <param name="sql">Raw SQL string to execute against the database.</param>
         /// <param name="sqlParams">Any parameters to add to the command.</param>
-        public Task ExecuteAsync(string sql, params SqlParameter[] sqlParams)
+        public Task ExecuteAsync(string sql, params MySqlParameter[] sqlParams)
         {
             return _sqlDatabase.ExecuteAsync(sql, sqlParams);
         }
@@ -65,8 +65,8 @@ namespace Cofoundry.Core.Data.SimpleDatabase.Internal
         /// <returns>Collection of mapped entities.</returns>
         public Task<ICollection<TEntity>> ReadAsync<TEntity>(
             string sql, 
-            Func<SqlDataReader, TEntity> mapper, 
-            params SqlParameter[] sqlParams
+            Func<MySqlDataReader, TEntity> mapper, 
+            params MySqlParameter[] sqlParams
             )
         {
 

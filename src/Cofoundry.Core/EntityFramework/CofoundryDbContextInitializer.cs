@@ -55,7 +55,7 @@ namespace Cofoundry.Core.EntityFramework.Internal
             optionsBuilder.UseLoggerFactory(_loggerFactory);
             
             var connection = _cofoundryDbConnectionFactory.GetShared();
-            optionsBuilder.UseSqlServer(connection);
+            optionsBuilder.UseMySql(connection);
 
             return optionsBuilder;
         }

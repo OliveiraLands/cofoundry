@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
+using MySql.Data.MySqlClient;
 
 namespace Cofoundry.Core.Data.SimpleDatabase
 {
@@ -24,7 +24,7 @@ namespace Cofoundry.Core.Data.SimpleDatabase
         /// </summary>
         /// <param name="sql">Raw SQL string to execute against the database..</param>
         /// <param name="sqlParams">Any parameters to add to the command.</param>
-        Task ExecuteAsync(string sql, params SqlParameter[] sqlParams);
+        Task ExecuteAsync(string sql, params MySqlParameter[] sqlParams);
 
         /// <summary>
         /// Executes raw sql and uses a reader with a mapping function to return
@@ -35,6 +35,6 @@ namespace Cofoundry.Core.Data.SimpleDatabase
         /// <param name="map">A mapping function to use to map each row.</param>
         /// <param name="sqlParams">Any parameters to add to the command.</param>
         /// <returns>Collection of mapped entities.</returns>
-        Task<ICollection<TEntity>> ReadAsync<TEntity>(string sql, Func<SqlDataReader, TEntity> map, params SqlParameter[] sqlParams);
+        Task<ICollection<TEntity>> ReadAsync<TEntity>(string sql, Func<MySqlDataReader, TEntity> map, params MySqlParameter[] sqlParams);
     }
 }

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using Microsoft.Data.SqlClient;
 using System.Text;
 
 namespace Cofoundry.Core.Data.Internal
@@ -38,7 +38,7 @@ namespace Cofoundry.Core.Data.Internal
         /// </summary>
         public DbConnection Create()
         {
-            return new SqlConnection(_databaseSettings.ConnectionString);
+            return new MySqlConnection(_databaseSettings.ConnectionString);
         }
 
         /// <summary>

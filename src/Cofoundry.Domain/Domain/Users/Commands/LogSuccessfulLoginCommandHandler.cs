@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Cofoundry.Domain.Data;
 using Cofoundry.Domain.CQS;
 using Cofoundry.Core.EntityFramework;
 using Cofoundry.Core;
+using MySql.Data.MySqlClient;
 
 namespace Cofoundry.Domain.Internal
 {
@@ -50,9 +50,9 @@ namespace Cofoundry.Domain.Internal
 
             await _sqlExecutor.ExecuteCommandAsync(_dbContext,
                 "Cofoundry.UserLoginLog_Add",
-                new SqlParameter("UserId", user.UserId),
-                new SqlParameter("IPAddress", connectionInfo.IPAddress),
-                new SqlParameter("DateTimeNow", executionContext.ExecutionDate)
+                new MySqlParameter("UserId", user.UserId),
+                new MySqlParameter("IPAddress", connectionInfo.IPAddress),
+                new MySqlParameter("DateTimeNow", executionContext.ExecutionDate)
                 );
         }
 

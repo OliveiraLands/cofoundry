@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
+using MySql.Data.MySqlClient;
 
 namespace Cofoundry.Core.EntityFramework
 {
     public interface ISqlParameterFactory
     {
-        SqlParameter CreateOutputParameterByType(string name, Type t);
+        MySqlParameter CreateOutputParameterByType(string name, Type t);
     }
 }

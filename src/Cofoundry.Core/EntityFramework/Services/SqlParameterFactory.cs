@@ -3,27 +3,28 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text;
-using Microsoft.Data.SqlClient;
+using MySql.Data.MySqlClient;
+using Pomelo.EntityFrameworkCore.MySql;
 
 namespace Cofoundry.Core.EntityFramework.Internal
 {
     public class SqlParameterFactory : ISqlParameterFactory
     {
-        private static readonly Dictionary<Type, SqlDbType> _dbTypeMap = new Dictionary<Type, SqlDbType>()
+        private static readonly Dictionary<Type, DbType> _dbTypeMap = new Dictionary<Type, DbType>()
         {
-            { typeof(string),  SqlDbType.NVarChar },
-            { typeof(int),  SqlDbType.Int },
-            { typeof(decimal),  SqlDbType.Decimal },
-            { typeof(long),  SqlDbType.BigInt },
-            { typeof(bool),  SqlDbType.Bit },
-            { typeof(DateTime),  SqlDbType.DateTime2 },
-            { typeof(float),  SqlDbType.Float },
-            { typeof(Guid),  SqlDbType.UniqueIdentifier }
+            { typeof(string),  DbType.String },
+            { typeof(int),  DbType.Int32 },
+            { typeof(decimal),  DbType.Decimal },
+            { typeof(long),  DbType.Int64 },
+            { typeof(bool),  DbType.Boolean },
+            { typeof(DateTime),  DbType.DateTime2 },
+            { typeof(float),  DbType.Double },
+            { typeof(Guid),  DbType.Guid }
         };
 
-        public SqlParameter CreateOutputParameterByType(string name, Type t)
+        public MySqlParameter CreateOutputParameterByType(string name, Type t)
         {
-            var outputParam = new SqlParameter(name, DBNull.Value);
+            var outputParam = new MySqlParameter(name, DBNull.Value);
             outputParam.Direction = ParameterDirection.Output;
 
             // If this is a non-null value nullable type, return the converted base type
@@ -31,13 +32,13 @@ namespace Cofoundry.Core.EntityFramework.Internal
 
             if (_dbTypeMap.ContainsKey(type))
             {
-                outputParam.SqlDbType = _dbTypeMap[type];
+                outputParam.DbType = _dbTypeMap[type];
             }
 
-            switch (outputParam.SqlDbType)
+            switch (outputParam.DbType)
             {
-                case SqlDbType.NVarChar:
-                case SqlDbType.VarChar:
+                case DbType.String:
+                case DbType.AnsiString:
                     // Size required for variable size output types
                     outputParam.Size = -1;
                     break;
