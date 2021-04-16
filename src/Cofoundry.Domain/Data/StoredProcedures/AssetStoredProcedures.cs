@@ -1,11 +1,6 @@
 ﻿using Cofoundry.Core.EntityFramework;
-<<<<<<< HEAD
 using MySql.Data.MySqlClient;
 using System;
-=======
-using System;
-using Microsoft.Data.SqlClient;
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 using System.Threading.Tasks;
 
 namespace Cofoundry.Domain.Data.Internal
@@ -44,13 +39,8 @@ namespace Cofoundry.Domain.Data.Internal
             return _entityFrameworkSqlExecutor
                 .ExecuteCommandAsync(_dbContext,
                 "Cofoundry.AssetFileCleanupQueueItem_Cleanup",
-<<<<<<< HEAD
                  new MySqlParameter("@CompletedItemRetentionTimeInSeconds", completedItemRetentionTimeInSeconds),
                  new MySqlParameter("@deadLetterRetentionTimeInSeconds", deadLetterRetentionTimeInSeconds)
-=======
-                 new SqlParameter("@CompletedItemRetentionTimeInSeconds", completedItemRetentionTimeInSeconds),
-                 new SqlParameter("@deadLetterRetentionTimeInSeconds", deadLetterRetentionTimeInSeconds)
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
                  );
         }
     }
