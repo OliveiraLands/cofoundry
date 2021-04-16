@@ -1,6 +1,11 @@
 ﻿using Cofoundry.Core.EntityFramework;
+<<<<<<< HEAD
 using MySql.Data.MySqlClient;
 using System;
+=======
+using System;
+using Microsoft.Data.SqlClient;
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 using System.Threading.Tasks;
 
 namespace Cofoundry.Domain.Data.Internal
@@ -42,10 +47,17 @@ namespace Cofoundry.Domain.Data.Internal
                 .ExecuteCommandWithOutputAsync<int?>(_dbContext,
                 "Cofoundry.Page_AddDraft",
                 "PageVersionId",
+<<<<<<< HEAD
                  new MySqlParameter("PageId", pageId),
                  new MySqlParameter("CopyFromPageVersionId", copyFromPageVersionId),
                  new MySqlParameter("CreateDate", createDate),
                  new MySqlParameter("CreatorId", creatorId)
+=======
+                 new SqlParameter("PageId", pageId),
+                 new SqlParameter("CopyFromPageVersionId", copyFromPageVersionId),
+                 new SqlParameter("CreateDate", createDate),
+                 new SqlParameter("CreatorId", creatorId)
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
                  );
 
             if (!newVersionId.HasValue)
@@ -84,10 +96,17 @@ namespace Cofoundry.Domain.Data.Internal
             return _entityFrameworkSqlExecutor
                 .ExecuteCommandAsync(_dbContext,
                 "Cofoundry.Page_CopyBlocksToDraft",
+<<<<<<< HEAD
                  new MySqlParameter("PageId", copyToPageId),
                  new MySqlParameter("CopyFromPageVersionId", copyFromPageVersionId),
                  new MySqlParameter("CreateDate", createDate),
                  new MySqlParameter("CreatorId", creatorId)
+=======
+                 new SqlParameter("PageId", copyToPageId),
+                 new SqlParameter("CopyFromPageVersionId", copyFromPageVersionId),
+                 new SqlParameter("CreateDate", createDate),
+                 new SqlParameter("CreatorId", creatorId)
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
                  );
         }
 
@@ -101,7 +120,11 @@ namespace Cofoundry.Domain.Data.Internal
             return _entityFrameworkSqlExecutor
                 .ExecuteCommandAsync(_dbContext,
                 "Cofoundry.PagePublishStatusQuery_Update",
+<<<<<<< HEAD
                  new MySqlParameter("PageId", pageId)
+=======
+                 new SqlParameter("PageId", pageId)
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
                  );
         }
     }

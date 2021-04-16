@@ -4,7 +4,11 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
+<<<<<<< HEAD
 using MySql.Data.MySqlClient;
+=======
+using Microsoft.Data.SqlClient;
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 
 namespace Cofoundry.Core.Data.SimpleDatabase.Internal
 {
@@ -14,9 +18,15 @@ namespace Cofoundry.Core.Data.SimpleDatabase.Internal
     /// </summary>
     public class SqlDatabase : IDisposable, IDatabase
     {
+<<<<<<< HEAD
         private readonly MySqlConnection _sqlConnection;
 
         public SqlDatabase(MySqlConnection sqlConnection)
+=======
+        private readonly SqlConnection _sqlConnection;
+
+        public SqlDatabase(SqlConnection sqlConnection)
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
         {
             _sqlConnection = sqlConnection;
         }
@@ -35,7 +45,11 @@ namespace Cofoundry.Core.Data.SimpleDatabase.Internal
         /// </summary>
         /// <param name="sql">Raw SQL string to execute against the database..</param>
         /// <param name="sqlParams">Any parameters to add to the command.</param>
+<<<<<<< HEAD
         public async Task ExecuteAsync(string sql, params MySqlParameter[] sqlParams)
+=======
+        public async Task ExecuteAsync(string sql, params SqlParameter[] sqlParams)
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
         {
             var isInitialStateClosed = IsClosed();
             if (isInitialStateClosed)
@@ -43,7 +57,11 @@ namespace Cofoundry.Core.Data.SimpleDatabase.Internal
                 _sqlConnection.Open();
             }
 
+<<<<<<< HEAD
             using (var sqlCmd = new MySqlCommand(sql, _sqlConnection))
+=======
+            using (var sqlCmd = new SqlCommand(sql, _sqlConnection))
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
             {
                 if (sqlParams != null && sqlParams.Any())
                 {
@@ -69,8 +87,13 @@ namespace Cofoundry.Core.Data.SimpleDatabase.Internal
         /// <returns>Collection of mapped entities.</returns>
         public async Task<ICollection<TEntity>> ReadAsync<TEntity>(
             string sql, 
+<<<<<<< HEAD
             Func<MySqlDataReader, TEntity> mapper, 
             params MySqlParameter[] sqlParams
+=======
+            Func<SqlDataReader, TEntity> mapper, 
+            params SqlParameter[] sqlParams
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
             )
         {
             var isInitialStateClosed = IsClosed();
@@ -81,7 +104,11 @@ namespace Cofoundry.Core.Data.SimpleDatabase.Internal
 
             List<TEntity> result = new List<TEntity>();
 
+<<<<<<< HEAD
             using (var sqlCmd = new MySqlCommand(sql, _sqlConnection))
+=======
+            using (var sqlCmd = new SqlCommand(sql, _sqlConnection))
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
             {
                 if (sqlParams != null && sqlParams.Any())
                 {

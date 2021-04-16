@@ -1,10 +1,18 @@
+<<<<<<< HEAD
 ﻿using MySql.Data.MySqlClient;
 using System;
+=======
+﻿using System;
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
+<<<<<<< HEAD
+=======
+using Microsoft.Data.SqlClient;
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 
 namespace Cofoundry.Core.Data.SimpleDatabase.Internal
 {
@@ -25,9 +33,15 @@ namespace Cofoundry.Core.Data.SimpleDatabase.Internal
         {
             var dbConnection = _cofoundryDbConnectionFactory.GetShared();
 
+<<<<<<< HEAD
             if (dbConnection is MySqlConnection)
             {
                 _sqlDatabase = new SqlDatabase((MySqlConnection)dbConnection);
+=======
+            if (dbConnection is SqlConnection)
+            {
+                _sqlDatabase = new SqlDatabase((SqlConnection)dbConnection);
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
             }
             else
             {
@@ -49,7 +63,11 @@ namespace Cofoundry.Core.Data.SimpleDatabase.Internal
         /// </summary>
         /// <param name="sql">Raw SQL string to execute against the database.</param>
         /// <param name="sqlParams">Any parameters to add to the command.</param>
+<<<<<<< HEAD
         public Task ExecuteAsync(string sql, params MySqlParameter[] sqlParams)
+=======
+        public Task ExecuteAsync(string sql, params SqlParameter[] sqlParams)
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
         {
             return _sqlDatabase.ExecuteAsync(sql, sqlParams);
         }
@@ -65,8 +83,13 @@ namespace Cofoundry.Core.Data.SimpleDatabase.Internal
         /// <returns>Collection of mapped entities.</returns>
         public Task<ICollection<TEntity>> ReadAsync<TEntity>(
             string sql, 
+<<<<<<< HEAD
             Func<MySqlDataReader, TEntity> mapper, 
             params MySqlParameter[] sqlParams
+=======
+            Func<SqlDataReader, TEntity> mapper, 
+            params SqlParameter[] sqlParams
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
             )
         {
 

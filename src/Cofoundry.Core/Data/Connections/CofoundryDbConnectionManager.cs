@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+=======
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using Microsoft.Data.SqlClient;
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 using System.Text;
 
 namespace Cofoundry.Core.Data.Internal
@@ -38,7 +45,11 @@ namespace Cofoundry.Core.Data.Internal
         /// </summary>
         public DbConnection Create()
         {
+<<<<<<< HEAD
             return new MySqlConnection(_databaseSettings.ConnectionString);
+=======
+            return new SqlConnection(_databaseSettings.ConnectionString);
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
         }
 
         /// <summary>

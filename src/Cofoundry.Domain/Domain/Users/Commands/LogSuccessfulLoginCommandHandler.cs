@@ -2,12 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+<<<<<<< HEAD
+=======
+using Microsoft.Data.SqlClient;
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 using Microsoft.EntityFrameworkCore;
 using Cofoundry.Domain.Data;
 using Cofoundry.Domain.CQS;
 using Cofoundry.Core.EntityFramework;
 using Cofoundry.Core;
+<<<<<<< HEAD
 using MySql.Data.MySqlClient;
+=======
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 
 namespace Cofoundry.Domain.Internal
 {
@@ -50,9 +57,15 @@ namespace Cofoundry.Domain.Internal
 
             await _sqlExecutor.ExecuteCommandAsync(_dbContext,
                 "Cofoundry.UserLoginLog_Add",
+<<<<<<< HEAD
                 new MySqlParameter("UserId", user.UserId),
                 new MySqlParameter("IPAddress", connectionInfo.IPAddress),
                 new MySqlParameter("DateTimeNow", executionContext.ExecutionDate)
+=======
+                new SqlParameter("UserId", user.UserId),
+                new SqlParameter("IPAddress", connectionInfo.IPAddress),
+                new SqlParameter("DateTimeNow", executionContext.ExecutionDate)
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
                 );
         }
 
