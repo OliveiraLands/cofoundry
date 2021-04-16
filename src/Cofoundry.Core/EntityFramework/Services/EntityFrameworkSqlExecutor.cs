@@ -10,13 +10,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-<<<<<<< HEAD
-//using Microsoft.Data.SqlClient;
 using Pomelo.EntityFrameworkCore.MySql;
 using MySql.Data.MySqlClient;
-=======
-using Microsoft.Data.SqlClient;
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 
 namespace Cofoundry.Core.EntityFramework.Internal
 {
@@ -52,22 +47,14 @@ namespace Cofoundry.Core.EntityFramework.Internal
         /// <returns>
         /// An array of the results of the query.
         /// </returns>
-<<<<<<< HEAD
         public async virtual Task<T[]> ExecuteQueryAsync<T>(DbContext dbContext, string spName, params MySqlParameter[] sqlParams)
-=======
-        public async virtual Task<T[]> ExecuteQueryAsync<T>(DbContext dbContext, string spName, params SqlParameter[] sqlParams)
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
             where T : class
         {
             var results = await CreateQuery<T>(dbContext, spName, sqlParams).ToArrayAsync();
             return results;
         }
 
-<<<<<<< HEAD
         private IQueryable<T> CreateQuery<T>(DbContext dbContext, string spName, params MySqlParameter[] sqlParams)
-=======
-        private IQueryable<T> CreateQuery<T>(DbContext dbContext, string spName, params SqlParameter[] sqlParams)
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
             where T : class
         {
             if (sqlParams.Any())
@@ -104,11 +91,7 @@ namespace Cofoundry.Core.EntityFramework.Internal
         /// <returns>
         /// The result of the query. Throws an exception if more than one result is returned.
         /// </returns>
-<<<<<<< HEAD
         public async virtual Task<T> ExecuteScalarAsync<T>(DbContext dbContext, string spName, params MySqlParameter[] sqlParams)
-=======
-        public async virtual Task<T> ExecuteScalarAsync<T>(DbContext dbContext, string spName, params SqlParameter[] sqlParams)
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
         {
             // Derived from code in https://github.com/dotnet/efcore/issues/1862
             // Needs to be updated when EF Core finally supports ad-hoc queries again
@@ -168,11 +151,7 @@ namespace Cofoundry.Core.EntityFramework.Internal
         /// Either the number of rows affected or optionally returning the value of the 
         /// first output parameter passed in the parameters collection.
         /// </returns>
-<<<<<<< HEAD
         public async virtual Task<object> ExecuteCommandAsync(DbContext dbContext, string spName, params MySqlParameter[] sqlParams)
-=======
-        public async virtual Task<object> ExecuteCommandAsync(DbContext dbContext, string spName, params SqlParameter[] sqlParams)
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
         {
             object result = null;
 
@@ -208,11 +187,7 @@ namespace Cofoundry.Core.EntityFramework.Internal
             return result;
         }
 
-<<<<<<< HEAD
         private static object GetOutputParamValue(MySqlParameter[] sqlParams)
-=======
-        private static object GetOutputParamValue(SqlParameter[] sqlParams)
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
         {
             var outputParam = sqlParams.FirstOrDefault(p => p.Direction == ParameterDirection.InputOutput || p.Direction == ParameterDirection.Output);
             if (outputParam != null)
@@ -242,11 +217,7 @@ namespace Cofoundry.Core.EntityFramework.Internal
         /// <returns>
         /// The value of the first output parameter in the executed query.
         /// </returns>
-<<<<<<< HEAD
         public async virtual Task<T> ExecuteCommandWithOutputAsync<T>(DbContext dbContext, string spName, string outputParameterName, params MySqlParameter[] sqlParams)
-=======
-        public async virtual Task<T> ExecuteCommandWithOutputAsync<T>(DbContext dbContext, string spName, string outputParameterName, params SqlParameter[] sqlParams)
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
         {
             var outputParam = CreateOutputParameter<T>(outputParameterName);
             var modifiedParams = MergeParameters(sqlParams, outputParam);
@@ -256,27 +227,16 @@ namespace Cofoundry.Core.EntityFramework.Internal
             return ParseOutputParameter<T>(outputParam);
         }
 
-<<<<<<< HEAD
         private MySqlParameter[] MergeParameters(MySqlParameter[] sqlParams, MySqlParameter paramToMerge)
         {
             var modifiedParams = sqlParams
                 .Union(new MySqlParameter[] { paramToMerge })
-=======
-        private SqlParameter[] MergeParameters(SqlParameter[] sqlParams, SqlParameter paramToMerge)
-        {
-            var modifiedParams = sqlParams
-                .Union(new SqlParameter[] { paramToMerge })
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
                 .ToArray();
 
             return modifiedParams;
         }
 
-<<<<<<< HEAD
         private T ParseOutputParameter<T>(MySqlParameter outputParam)
-=======
-        private T ParseOutputParameter<T>(SqlParameter outputParam)
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
         {
             if (outputParam.Value == DBNull.Value) return default(T);
 
@@ -289,11 +249,7 @@ namespace Cofoundry.Core.EntityFramework.Internal
             return (T)Convert.ChangeType(outputParam.Value, typeof(T));
         }
 
-<<<<<<< HEAD
         private MySqlParameter CreateOutputParameter<T>(string outputParameterName)
-=======
-        private SqlParameter CreateOutputParameter<T>(string outputParameterName)
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
         {
             var outputParam = _sqlParameterFactory.CreateOutputParameterByType(outputParameterName, typeof(T));
 
@@ -305,11 +261,7 @@ namespace Cofoundry.Core.EntityFramework.Internal
 
         #region private helpers
 
-<<<<<<< HEAD
         private void FormatSqlParameters(MySqlParameter[] sqlParams)
-=======
-        private void FormatSqlParameters(SqlParameter[] sqlParams)
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
         {
             foreach (var xmlParam in sqlParams)
             {
@@ -321,21 +273,13 @@ namespace Cofoundry.Core.EntityFramework.Internal
                 else if (xmlParam.Value is XElement)
                 {
                     // We need to re-map xml params because EF doesn't seem to like it
-<<<<<<< HEAD
                     xmlParam.DbType = DbType.Xml;
-=======
-                    xmlParam.SqlDbType = SqlDbType.Xml;
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
                     xmlParam.Value = xmlParam.Value.ToString();
                 }
             }
         }
 
-<<<<<<< HEAD
         private string FormatSqlCommand(string spName, MySqlParameter[] sqlParams)
-=======
-        private string FormatSqlCommand(string spName, SqlParameter[] sqlParams)
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
         {
             var formattedParams = sqlParams
                 .Select(p => string.Format("@{0} {1}", p.ParameterName.Trim('@'), GetParameterDirection(p)).TrimEnd())
@@ -344,11 +288,7 @@ namespace Cofoundry.Core.EntityFramework.Internal
             return cmd;
         }
 
-<<<<<<< HEAD
         private string GetParameterDirection(MySqlParameter p)
-=======
-        private string GetParameterDirection(SqlParameter p)
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
         {
             if (p.Direction == ParameterDirection.InputOutput
                 || p.Direction == ParameterDirection.Output)

@@ -1,17 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-<<<<<<< HEAD
 using MySql.Data.MySqlClient;
-=======
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-<<<<<<< HEAD
-
-=======
-using Microsoft.Data.SqlClient;
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 
 namespace Cofoundry.Core.EntityFramework
 {
@@ -31,11 +23,7 @@ namespace Cofoundry.Core.EntityFramework
         /// <returns>
         /// An array of the results of the query.
         /// </returns>
-<<<<<<< HEAD
         Task<T[]> ExecuteQueryAsync<T>(DbContext dbContext, string spName, params MySqlParameter[] sqlParams)
-=======
-        Task<T[]> ExecuteQueryAsync<T>(DbContext dbContext, string spName, params SqlParameter[] sqlParams)
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
             where T : class;
 
         #endregion
@@ -52,11 +40,7 @@ namespace Cofoundry.Core.EntityFramework
         /// <returns>
         /// The result of the query. Throws an exception if more than one result is returned.
         /// </returns>
-<<<<<<< HEAD
         Task<T> ExecuteScalarAsync<T>(DbContext dbContext, string spName, params MySqlParameter[] sqlParams);
-=======
-        Task<T> ExecuteScalarAsync<T>(DbContext dbContext, string spName, params SqlParameter[] sqlParams);
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 
         #endregion
 
@@ -74,11 +58,7 @@ namespace Cofoundry.Core.EntityFramework
         /// Either the number of rows affected or optionally returning the value of the 
         /// first output parameter passed in the parameters collection.
         /// </returns>
-<<<<<<< HEAD
         Task<object> ExecuteCommandAsync(DbContext dbContext, string spName, params MySqlParameter[] sqlParams);
-=======
-        Task<object> ExecuteCommandAsync(DbContext dbContext, string spName, params SqlParameter[] sqlParams);
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 
         #endregion
 
@@ -100,11 +80,7 @@ namespace Cofoundry.Core.EntityFramework
         /// <returns>
         /// The value of the first output parameter in the executed query.
         /// </returns>
-<<<<<<< HEAD
         Task<T> ExecuteCommandWithOutputAsync<T>(DbContext dbContext, string spName, string outputParameterName, params MySqlParameter[] sqlParams);
-=======
-        Task<T> ExecuteCommandWithOutputAsync<T>(DbContext dbContext, string spName, string outputParameterName, params SqlParameter[] sqlParams);
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 
         #endregion
     }

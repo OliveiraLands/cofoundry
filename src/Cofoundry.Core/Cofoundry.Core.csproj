@@ -29,11 +29,8 @@
 
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
 
-<<<<<<< HEAD
+
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.2.4" />
-=======
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.10" />
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
   </ItemGroup>
 
 </Project>

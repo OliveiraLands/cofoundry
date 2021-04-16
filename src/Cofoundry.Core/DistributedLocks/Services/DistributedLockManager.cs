@@ -1,17 +1,10 @@
 ﻿using Cofoundry.Core.Data.SimpleDatabase;
-<<<<<<< HEAD
 using MySql.Data.MySqlClient;
-=======
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-<<<<<<< HEAD
-=======
-using Microsoft.Data.SqlClient;
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 
 namespace Cofoundry.Core.DistributedLocks.Internal
 {
@@ -89,17 +82,10 @@ namespace Cofoundry.Core.DistributedLocks.Internal
 
             var distributedLock = (await _db.ReadAsync(query,
                 MapDistributedLock,
-<<<<<<< HEAD
                 new MySqlParameter("DistributedLockId", distributedLockDefinition.DistributedLockId),
                 new MySqlParameter("DistributedLockName", distributedLockDefinition.Name),
                 new MySqlParameter("LockingId", lockingId),
                 new MySqlParameter("TimeoutInSeconds", distributedLockDefinition.Timeout.TotalSeconds)
-=======
-                new SqlParameter("DistributedLockId", distributedLockDefinition.DistributedLockId),
-                new SqlParameter("DistributedLockName", distributedLockDefinition.Name),
-                new SqlParameter("LockingId", lockingId),
-                new SqlParameter("TimeoutInSeconds", distributedLockDefinition.Timeout.TotalSeconds)
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
                 ))
                 .SingleOrDefault();
 
@@ -132,21 +118,12 @@ namespace Cofoundry.Core.DistributedLocks.Internal
                 ";
 
             return _db.ExecuteAsync(sql, 
-<<<<<<< HEAD
                 new MySqlParameter("LockingId", distributedLock.LockedByLockingId),
                 new MySqlParameter("DistributedLockId", distributedLock.DistributedLockId)
                 );
         }
 
         private DistributedLock MapDistributedLock(MySqlDataReader reader)
-=======
-                new SqlParameter("LockingId", distributedLock.LockedByLockingId),
-                new SqlParameter("DistributedLockId", distributedLock.DistributedLockId)
-                );
-        }
-
-        private DistributedLock MapDistributedLock(SqlDataReader reader)
->>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
         {
             var result = new DistributedLock();
             if (reader[nameof(result.DistributedLockId)] == null) return null;
