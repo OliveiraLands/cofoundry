@@ -1,3 +1,7 @@
+## Fork version for MySQL
+
+This work is to convert this project to work with MySQL Server
+
 ![Cofoundry](https://www.cofoundry.org/content/images/external/logo_for_github_readme.png)
 
 [![Build status](https://ci.appveyor.com/api/projects/status/q22kvqkckiswtv8i?svg=true)](https://ci.appveyor.com/project/Cofoundry/cofoundry)
