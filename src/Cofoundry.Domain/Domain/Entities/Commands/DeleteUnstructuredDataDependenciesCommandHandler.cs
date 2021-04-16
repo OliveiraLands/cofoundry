@@ -6,9 +6,15 @@ using System.Threading.Tasks;
 using Cofoundry.Domain.Data;
 using Cofoundry.Domain.CQS;
 using System.ComponentModel.DataAnnotations;
+<<<<<<< HEAD
 using Cofoundry.Core;
 using Cofoundry.Core.EntityFramework;
 using MySql.Data.MySqlClient;
+=======
+using Microsoft.Data.SqlClient;
+using Cofoundry.Core;
+using Cofoundry.Core.EntityFramework;
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
 
 namespace Cofoundry.Domain.Internal
 {
@@ -67,8 +73,13 @@ namespace Cofoundry.Domain.Internal
             await _entityFrameworkSqlExecutor
                 .ExecuteCommandAsync(_dbContext,
                     "Cofoundry.UnstructuredDataDependency_Delete",
+<<<<<<< HEAD
                     new MySqlParameter("EntityDefinitionCode", command.RootEntityDefinitionCode),
                     new MySqlParameter("EntityId", command.RootEntityId)
+=======
+                    new SqlParameter("EntityDefinitionCode", command.RootEntityDefinitionCode),
+                    new SqlParameter("EntityId", command.RootEntityId)
+>>>>>>> 6ecdeb969200643b332b1c86e2aba97ab0ff9ce6
                     );
         }
 
