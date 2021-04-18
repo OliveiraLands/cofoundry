@@ -144,14 +144,14 @@ namespace Cofoundry.Core.AutoUpdate.Internal
         private Task LogUpdateSuccessAsync(string module, int version, string description)
         {
             var sql = @"
-	                insert into Cofoundry.ModuleUpdate (Module, [Version], [Description], ExecutionDate) 
+	                insert into Cofoundry.ModuleUpdate (Module, Version, Description, ExecutionDate) 
 	                values (@Module, @Version, @Description, @ExecutionDate)";
 
             return _db.ExecuteAsync(sql,
-                new MySqlParameter("Module", module),
-                new MySqlParameter("Version", version),
-                new MySqlParameter("Description", description),
-                new MySqlParameter("ExecutionDate", DateTime.UtcNow)
+                new MySqlParameter("@Module", module),
+                new MySqlParameter("@Version", version),
+                new MySqlParameter("@Description", description),
+                new MySqlParameter("@ExecutionDate", DateTime.UtcNow)
                 );
         }
 
@@ -160,15 +160,15 @@ namespace Cofoundry.Core.AutoUpdate.Internal
             try
             {
                 var sql = @"
-                    insert into Cofoundry.ModuleUpdateError (Module, [Version], [Description], ExecutionDate, ExceptionMessage) 
+                    insert into Cofoundry.ModuleUpdateError (Module, Version, Description, ExecutionDate, ExceptionMessage) 
 	                values (@Module, @Version, @Description, @ExecutionDate, @ExceptionMessage)";
 
                 return _db.ExecuteAsync(sql,
-                    new MySqlParameter("Module", module),
-                    new MySqlParameter("Version", version),
-                    new MySqlParameter("Description", description),
-                    new MySqlParameter("ExecutionDate", DateTime.UtcNow),
-                    new MySqlParameter("ExceptionMessage", ex.ToString())
+                    new MySqlParameter("@Module", module),
+                    new MySqlParameter("@Version", version),
+                    new MySqlParameter("@Description", description),
+                    new MySqlParameter("@ExecutionDate", DateTime.UtcNow),
+                    new MySqlParameter("@ExceptionMessage", ex.ToString())
                     );
             }
             catch (Exception loggingException)
@@ -232,22 +232,37 @@ namespace Cofoundry.Core.AutoUpdate.Internal
         private async Task<ICollection<ModuleVersion>> GetUpdateVersionHistoryAsync()
         {
             var query = @"
-                if (exists (select * 
-                                 from information_schema.tables 
-                                 where table_schema = 'Cofoundry' 
-                                 and  table_name = 'ModuleUpdate'))
-                begin
-                    select Module, MAX([Version]) as Version
+            select tbl.table_name from information_schema.tables as tbl
+                where tbl.table_schema = database()
+                  and tbl.table_name = 'ModuleUpdate'
+            ";
+            
+            var tables = await _db.ReadAsync(query, r =>
+            {
+                return (string)r["table_name"];
+            });
+
+            if (tables.Count == 0)
+            {
+                query = @"Select '' as Module, 0 as Version where 1=0;";
+            }
+            else
+            {
+                query = @"
+                    select Module, MAX(Version) as Version
 	                from  Cofoundry.ModuleUpdate
 	                group by Module
 	                order by Module
-                end";
+                ";
+            }
 
             var moduleVersions = await _db.ReadAsync(query, r =>
             {
-                var moduleVersion = new ModuleVersion();
-                moduleVersion.Module = (string)r["Module"];
-                moduleVersion.Version = (int)r["Version"];
+                var moduleVersion = new ModuleVersion
+                {
+                    Module = (string)r["Module"],
+                    Version = (int)r["Version"]
+                };
 
                 return moduleVersion;
             });
@@ -269,15 +284,26 @@ namespace Cofoundry.Core.AutoUpdate.Internal
             // First check config
             if (_autoUpdateSettings.Disabled) return true;
 
-            // else this option can also be set in the db
             var query = @"
-                if (exists (select * 
-                                 from information_schema.tables 
-                                 where table_schema = 'Cofoundry' 
-                                 and  table_name = 'AutoUpdateLock'))
-                begin
+            select tbl.table_name from information_schema.tables as tbl
+                where tbl.table_schema = database()
+                  and tbl.table_name = 'AutoUpdateLock'
+            ";
+
+            var tables = await _db.ReadAsync(query, r =>
+            {
+                return (string)r["table_name"];
+            });
+
+            if (tables.Count == 0)
+            {
+                return false;
+            }
+
+            // else this option can also be set in the db
+            query = @"
                     select IsLocked from Cofoundry.AutoUpdateLock;
-                end";
+                ";
 
             var isLocked = await _db.ReadAsync(query, (r) =>
             {

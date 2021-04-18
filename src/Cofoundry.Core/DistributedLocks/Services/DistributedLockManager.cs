@@ -61,31 +61,24 @@ namespace Cofoundry.Core.DistributedLocks.Internal
 
             var lockingId = Guid.NewGuid();
             var query = @" 
-                declare @DateNow datetime2(7) = GetUtcDate();
-
-                with data as (select @DistributedLockId as DistributedLockId, @DistributedLockName as [Name])
-                merge Cofoundry.DistributedLock t
-                using data s on s.DistributedLockId = t.DistributedLockId
-                when not matched by target
-                then insert (DistributedLockId, [Name]) 
-                values (s.DistributedLockId, s.[Name]);
+                replace into Cofoundry.DistributedLock (DistributedLockId, Name)  values (@DistributedLockId, @DistributedLockName);
 
                 update Cofoundry.DistributedLock 
-                set LockingId = @LockingId, LockDate = @DateNow, ExpiryDate = dateadd(second, @TimeoutInSeconds, @DateNow)
-                where DistributedLockId = @DistributedLockId
-                and (LockingId is null or ExpiryDate < @DateNow)
+                   set LockingId = @LockingId, LockDate = Now(), ExpiryDate = DATE_ADD(now(), interval @TimeoutInSeconds second)
+                 where DistributedLockId = @DistributedLockId
+                   and (LockingId is null or ExpiryDate < Now());
 
                 select DistributedLockId, LockingId, LockDate, ExpiryDate 
-                from Cofoundry.DistributedLock
-                where DistributedLockId = @DistributedLockId
+                  from Cofoundry.DistributedLock
+                 where DistributedLockId = @DistributedLockId;
                 ";
 
             var distributedLock = (await _db.ReadAsync(query,
                 MapDistributedLock,
-                new MySqlParameter("DistributedLockId", distributedLockDefinition.DistributedLockId),
-                new MySqlParameter("DistributedLockName", distributedLockDefinition.Name),
-                new MySqlParameter("LockingId", lockingId),
-                new MySqlParameter("TimeoutInSeconds", distributedLockDefinition.Timeout.TotalSeconds)
+                new MySqlParameter("@DistributedLockId", distributedLockDefinition.DistributedLockId),
+                new MySqlParameter("@DistributedLockName", distributedLockDefinition.Name),
+                new MySqlParameter("@LockingId", lockingId),
+                new MySqlParameter("@TimeoutInSeconds", distributedLockDefinition.Timeout.TotalSeconds)
                 ))
                 .SingleOrDefault();
 
@@ -118,8 +111,8 @@ namespace Cofoundry.Core.DistributedLocks.Internal
                 ";
 
             return _db.ExecuteAsync(sql, 
-                new MySqlParameter("LockingId", distributedLock.LockedByLockingId),
-                new MySqlParameter("DistributedLockId", distributedLock.DistributedLockId)
+                new MySqlParameter("@LockingId", distributedLock.LockedByLockingId),
+                new MySqlParameter("@DistributedLockId", distributedLock.DistributedLockId)
                 );
         }
 

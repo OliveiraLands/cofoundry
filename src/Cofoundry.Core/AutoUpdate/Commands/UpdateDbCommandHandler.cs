@@ -49,20 +49,20 @@ namespace Cofoundry.Core.AutoUpdate
             switch (command.ScriptType)
             {
                 case DbScriptType.Functions:
-                    sql.IfExists("select * from sysobjects where id = object_id(N'{0}') and type in (N'FN', N'IF', N'TF', N'FS', N'FT')", command.FileName);
-                    sql.AppendLine("drop function {0}", command.FileName);
+                    //sql.IfExists("select * from information_schema.ROUTINES as info WHERE info.ROUTINE_SCHEMA = DATABASE() AND info.ROUTINE_TYPE = 'FUNCTION' AND  info.ROUTINE_NAME = '{0}' ", command.FileName);
+                    sql.AppendLine("drop function if exists {0}", command.FileName);
                     break;
                 case DbScriptType.StoredProcedures:
-                    sql.IfExists("select * from sysobjects where id = object_id(N'{0}') and ObjectProperty(id, N'IsProcedure') = 1", command.FileName);
-                    sql.AppendLine("drop procedure {0}", command.FileName);
+                    //sql.IfExists("select * from information_schema.ROUTINES as info WHERE info.ROUTINE_SCHEMA = DATABASE() AND info.ROUTINE_TYPE = 'PROCEDURE' AND  info.ROUTINE_NAME = '{0}'", command.FileName);
+                    sql.AppendLine("drop procedure if exists {0}", command.FileName);
                     break;
                 case DbScriptType.Views:
-                    sql.AppendLine("if (object_id('{0}', 'V') is not null) ", command.FileName);
-                    sql.AppendLine("drop view {0}", command.FileName);
+                    //sql.AppendLine("if (object_id('{0}', 'V') is not null) ", command.FileName);
+                    sql.AppendLine("drop view if exists {0}", command.FileName);
                     break;
                 case DbScriptType.Triggers:
-                    sql.AppendLine("if (ObjectProperty(object_id('{0}'), 'IsTrigger') = 1)", command.FileName);
-                    sql.AppendLine("drop trigger {0}", command.FileName);
+                    //sql.AppendLine("if (ObjectProperty(object_id('{0}'), 'IsTrigger') = 1)", command.FileName);
+                    sql.AppendLine("drop trigger if exists {0}", command.FileName);
                     break;
             }
 

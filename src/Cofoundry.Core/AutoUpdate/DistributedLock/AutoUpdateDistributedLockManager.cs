@@ -62,27 +62,20 @@ namespace Cofoundry.Core.AutoUpdate.Internal
         private async Task EnsureDistributedLockInfrastructureExistsAsync()
         {
             await _db.ExecuteAsync(@"
-                if not exists (select schema_name from information_schema.schemata where schema_name = 'Cofoundry')
-                begin
-	                exec sp_executesql N'create schema Cofoundry'
-                end");
+	                create schema if not exists Cofoundry;
+                ");
 
             await _db.ExecuteAsync(@"
-                if (not exists (select * 
-                    from information_schema.tables 
-                    where table_schema = 'Cofoundry' 
-                    and  table_name = 'DistributedLock'))
-                begin
-	                create table Cofoundry.DistributedLock (
+                create table if not exists Cofoundry.DistributedLock (
 		                DistributedLockId char(6) not null,
-		                [Name] varchar(100) not null,
-		                LockingId uniqueidentifier null,
-		                LockDate datetime2(7) null,
-		                ExpiryDate datetime2(7) null,
+		                Name varchar(100) not null,
+		                LockingId char(38) null,
+		                LockDate datetime null,
+		                ExpiryDate datetime null,
 
 		                constraint PK_DistributedLock primary key (DistributedLockId)
-	                )
-                end");
+	                );
+                ");
         }
 
     }
