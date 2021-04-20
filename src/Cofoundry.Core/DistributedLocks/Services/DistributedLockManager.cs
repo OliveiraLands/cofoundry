@@ -65,17 +65,19 @@ namespace Cofoundry.Core.DistributedLocks.Internal
 
                 update Cofoundry.DistributedLock 
                    set LockingId = @LockingId, LockDate = Now(), ExpiryDate = DATE_ADD(now(), interval @TimeoutInSeconds second)
-                 where DistributedLockId = @DistributedLockId
+                 where DistributedLockId = @DistributedLockId2
                    and (LockingId is null or ExpiryDate < Now());
 
                 select DistributedLockId, LockingId, LockDate, ExpiryDate 
                   from Cofoundry.DistributedLock
-                 where DistributedLockId = @DistributedLockId;
+                 where DistributedLockId = @DistributedLockId3;
                 ";
 
             var distributedLock = (await _db.ReadAsync(query,
                 MapDistributedLock,
                 new MySqlParameter("@DistributedLockId", distributedLockDefinition.DistributedLockId),
+                new MySqlParameter("@DistributedLockId2", distributedLockDefinition.DistributedLockId),
+                new MySqlParameter("@DistributedLockId3", distributedLockDefinition.DistributedLockId),
                 new MySqlParameter("@DistributedLockName", distributedLockDefinition.Name),
                 new MySqlParameter("@LockingId", lockingId),
                 new MySqlParameter("@TimeoutInSeconds", distributedLockDefinition.Timeout.TotalSeconds)
@@ -122,7 +124,7 @@ namespace Cofoundry.Core.DistributedLocks.Internal
             if (reader[nameof(result.DistributedLockId)] == null) return null;
 
             result.DistributedLockId = reader["DistributedLockId"] as string;
-            result.LockedByLockingId = reader["LockingId"] as Guid?;
+            result.LockedByLockingId = Guid.Parse( reader["LockingId"].ToString()) as Guid?;
             result.LockDate = reader["LockDate"] as DateTime?;
             result.ExpiryDate = reader["ExpiryDate"] as DateTime?;
 

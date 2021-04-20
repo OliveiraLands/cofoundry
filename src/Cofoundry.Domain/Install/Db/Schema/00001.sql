@@ -2,23 +2,11 @@
 /* SCHEMAS */
 /* ******* */
 
-if not exists (select schema_name from information_schema.schemata where schema_name = 'app')
-begin
-	exec sp_executesql N'create schema app'
-end
-go
+create schema if not exists app;
 
-if not exists (select schema_name from information_schema.schemata where schema_name = 'Cofoundry')
-begin
-	exec sp_executesql N'create schema Cofoundry'
-end
-go
+create schema if not exists Cofoundry;
 
-if not exists (select schema_name from information_schema.schemata where schema_name = 'CofoundryPlugin')
-begin
-	exec sp_executesql N'create schema CofoundryPlugin'
-end
-go
+create schema if not exists CofoundryPlugin;
 
 
 /* ****** */
@@ -33,7 +21,7 @@ create table Cofoundry.AutoUpdateLock (
 	IsLocked bit not null,
 
 	constraint PK_AutoUpdateLock primary key (IsLocked)
-)
+);
 
 
 /****** Cofoundry.ModuleUpdate ******/
@@ -41,45 +29,45 @@ create table Cofoundry.AutoUpdateLock (
 create table Cofoundry.ModuleUpdate (
 
 	Module varchar(200) not null,
-	[Version] int not null,
-	[Description] varchar(200) not null,
-	ExecutionDate datetime2(4) not null,
+	Version int not null,
+	Description varchar(200) not null,
+	ExecutionDate datetime not null,
 
-	constraint PK_ModuleUpdate primary key (Module,[Version], [Description])
-)
+	constraint PK_ModuleUpdate primary key (Module,Version, Description)
+);
 
-create index IX_ModuleUpdate_ModuleVersion on Cofoundry.ModuleUpdate (Module asc, [Version] desc)
+create index IX_ModuleUpdate_ModuleVersion on Cofoundry.ModuleUpdate (Module asc, Version desc);
 
 
 /****** Cofoundry.ModuleUpdateError ******/
 
 create table Cofoundry.ModuleUpdateError (
 
-	ModuleUpdateErrorId int identity(1,1) not null,
+	ModuleUpdateErrorId int not null AUTO_INCREMENT,
 	Module varchar(200) not null,
-	[Version] int null,
-	[Description] varchar(200) not null,
-	ExecutionDate datetime2(4) not null,
-	ExceptionMessage nvarchar(max) null,
+	Version int null,
+	Description varchar(200) not null,
+	ExecutionDate datetime not null,
+	ExceptionMessage text null,
 
 	constraint PK_ModuleUpdateError primary key (ModuleUpdateErrorId)
-)
+);
 
-create index IX_ModuleUpdateError_Date on Cofoundry.ModuleUpdateError (ExecutionDate desc)
+create index IX_ModuleUpdateError_Date on Cofoundry.ModuleUpdateError (ExecutionDate desc);
 
 
 /****** Cofoundry.Locale ******/
 
 create table Cofoundry.Locale (
-	LocaleId int identity(1,1) not null,
+	LocaleId int  not null AUTO_INCREMENT,
 	ParentLocaleId int null,
 	IETFLanguageTag nvarchar(16) not null,
 	LocaleName nvarchar(64) not null,
-	IsActive bit not null constraint DF_Locale_IsActive  default (0),
+	IsActive bit not null default (0),
 
 	constraint PK_Locale primary key (LocaleId),
 	constraint FK_Locale_ParentLocale foreign key (ParentLocaleId) references Cofoundry.Locale (LocaleId)
-)
+);
 
 
 /****** Cofoundry.UserArea ******/
@@ -90,56 +78,55 @@ create table Cofoundry.UserArea (
 	Name nvarchar(20) null,
 
 	constraint PK_UserArea primary key (UserAreaCode)
-)
+);
 
 
 /****** Cofoundry.[Role] ******/
 
-create table Cofoundry.[Role] (
+create table Cofoundry.Role(
 
-	RoleId int identity(1,1) not null,
+	RoleId int not null AUTO_INCREMENT,
 	Title nvarchar(50) not null,
 	SpecialistRoleTypeCode char(3) null,
 	UserAreaCode char(3) not null,
 
 	constraint PK_Role primary key (RoleId),
 	constraint FK_Role_UserArea foreign key (UserAreaCode) references Cofoundry.UserArea (UserAreaCode)
-)
+);
 
-create unique index UIX_Role_Title on Cofoundry.[Role] (UserAreaCode, Title)
-create unique index UIX_Role_SpecialistRoleTypeCode on Cofoundry.[Role] (SpecialistRoleTypeCode) where (SpecialistRoleTypeCode is not null)
-
+create unique index UIX_Role_Title on Cofoundry.Role (UserAreaCode, Title);
+create unique index UIX_Role_SpecialistRoleTypeCode on Cofoundry.Role (SpecialistRoleTypeCode);
 
 /****** Cofoundry.[User] ******/
 
-create table Cofoundry.[User] (
+create table Cofoundry.User (
 
-	UserId int identity(1,1) not null,
+	UserId int not null AUTO_INCREMENT,
 	FirstName nvarchar(32) not null,
 	LastName nvarchar(32) not null,
 	Email nvarchar(150) null,
 	Username nvarchar(150) not null,
-	[Password] nvarchar(max) null,
-	CreateDate datetime2(4) not null,
-	IsDeleted bit not null constraint DF_User_IsDeleted default (0),
-	LastPasswordChangeDate datetime2(4) not null,
-	PreviousLoginDate datetime2(4) null,
-	LastLoginDate datetime2(4) null,
-	RequirePasswordChange bit not null constraint DF_User_RequirePasswordChange default (0),
+	Password text null,
+	CreateDate datetime not null,
+	IsDeleted bit not null default (0),
+	LastPasswordChangeDate datetime not null,
+	PreviousLoginDate datetime null,
+	LastLoginDate datetime null,
+	RequirePasswordChange bit not null default (0),
 	CreatorId int null,
 	RoleId int not null,
 	UserAreaCode char(3) not null,
 	PasswordEncryptionVersion int null,
 
 	constraint PK_User primary key (UserId),
-	constraint FK_User_CreatorUser foreign key (CreatorId) references Cofoundry.[User] (UserId),
-	constraint FK_User_Role foreign key (RoleId) references Cofoundry.[Role] (RoleId),
+	constraint FK_User_CreatorUser foreign key (CreatorId) references Cofoundry.User (UserId),
+	constraint FK_User_Role foreign key (RoleId) references Cofoundry.Role (RoleId),
 	constraint FK_User_UserArea foreign key (UserAreaCode) references Cofoundry.UserArea (UserAreaCode),
-	constraint CK_CreatorIdNotSelf check (UserId <> CreatorId)
-)
+	-- constraint CK_CreatorIdNotSelf check (UserId <> CreatorId)
+);
 
-create unique index UIX_User_Email on Cofoundry.[User] (UserAreaCode, Email) where (Email is not null AND IsDeleted=0)
-create unique index UIX_User_Username on Cofoundry.[User] (UserAreaCode, Username) where (IsDeleted=0)
+create unique index UIX_User_Email on Cofoundry.User (UserAreaCode, Email); -- where (Email is not null AND IsDeleted=0)
+create unique index UIX_User_Username on Cofoundry.User (UserAreaCode, Username); -- where (IsDeleted=0)
 
 
 /****** Cofoundry.EntityDefinition ******/
@@ -152,7 +139,7 @@ create table Cofoundry.EntityDefinition (
 	constraint PK_EntityDefinition primary key (EntityDefinitionCode)
 )
 
-create unique index UIX_EntityDefinition_Name on Cofoundry.EntityDefinition (Name)
+create unique index UIX_EntityDefinition_Name on Cofoundry.EntityDefinition (Name);
 
 
 /****** Cofoundry.CustomEntityDefinition ******/
@@ -166,58 +153,57 @@ create table Cofoundry.CustomEntityDefinition (
 
 	constraint PK_CustomEntityDefinition primary key (CustomEntityDefinitionCode),
 	constraint FK_CustomEntityDefinition_EntityDefinition foreign key (CustomEntityDefinitionCode) references Cofoundry.EntityDefinition (EntityDefinitionCode)
-)
+);
 
 
 /****** Cofoundry.Tag ******/
 
 create table Cofoundry.Tag (
 
-	TagId int identity(1,1) not null,
+	TagId int not null AUTO_INCREMENT,
 	TagText nvarchar(32) not null,
-	CreateDate datetime2(4) not null,
+	CreateDate datetime not null,
 
 	constraint PK_Tag primary key (TagId)
-)
+);
 
 
 /****** Cofoundry.WebDirectory ******/
 
 create table Cofoundry.WebDirectory (
 
-	WebDirectoryId int identity(1,1) not null,
+	WebDirectoryId int not null AUTO_INCREMENT,
 	ParentWebDirectoryId int null,
 	Name nvarchar(64) not null,
 	UrlPath nvarchar(64) not null,
 	IsActive bit not null,
-	CreateDate datetime2(4) not null,
+	CreateDate datetime not null,
 	CreatorId int not null,
 
 	constraint PK_WebDirectory primary key (WebDirectoryId),
-	constraint FK_WebDirectory_CreatorUser foreign key (CreatorId) references Cofoundry.[User] (UserId),
+	constraint FK_WebDirectory_CreatorUser foreign key (CreatorId) references Cofoundry.User (UserId),
 	constraint FK_WebDirectory_ParentWebDirectory foreign key (ParentWebDirectoryId) references Cofoundry.WebDirectory (WebDirectoryId)
-)
+);
 
-create unique index UIX_WebDirectory_UrlPath on Cofoundry.WebDirectory (ParentWebDirectoryId, UrlPath) where (IsActive=1)
+create unique index UIX_WebDirectory_UrlPath on Cofoundry.WebDirectory (ParentWebDirectoryId, UrlPath); --  where (IsActive=1)
 
 
 /****** Cofoundry.WebDirectoryLocale ******/
 
 create table Cofoundry.WebDirectoryLocale (
 
-	WebDirectoryLocaleId int identity(1,1) not null,
+	WebDirectoryLocaleId int not null AUTO_INCREMENT,
 	WebDirectoryId int not null,
 	LocaleId int not null,
 	UrlPath nvarchar(64) not null,
-	CreateDate datetime2(4) not null,
+	CreateDate datetime not null,
 	CreatorId int not null,
 
 	constraint PK_WebDirectoryLocale primary key (WebDirectoryLocaleId),
-	constraint FK_WebDirectoryLocale_CreatorUser foreign key (CreatorId) references Cofoundry.[User] (UserId),
+	constraint FK_WebDirectoryLocale_CreatorUser foreign key (CreatorId) references Cofoundry.User (UserId),
 	constraint FK_WebDirectoryLocale_Locale foreign key (LocaleId) references Cofoundry.Locale (LocaleId),
 	constraint FK_WebDirectoryLocale_WebDirectory foreign key (WebDirectoryId) references Cofoundry.WebDirectory (WebDirectoryId)
-)
-
+);
 
 /****** Cofoundry.WorkFlowStatus ******/
 
@@ -227,47 +213,47 @@ create table Cofoundry.WorkFlowStatus (
 	Name nvarchar(32) not null,
 
 	constraint PK_WorkFlowStatus primary key (WorkFlowStatusId)
-)
-go
+);
+
 
 
 /****** Cofoundry.DocumentAsset ******/
 
 create table Cofoundry.DocumentAsset (
-	DocumentAssetId int identity(1,1) not null,
-	[FileName] nvarchar(100) not null,
+	DocumentAssetId int not null AUTO_INCREMENT,
+	FileName nvarchar(100) not null,
 	Title nvarchar(100) not null,
-	[Description] nvarchar(max) not null,
+	Description text not null,
 	FileExtension nvarchar(30) not null,
 	FileSizeInBytes bigint not null,
 	ContentType nvarchar(100) null,
-	CreateDate datetime2(4) not null,
+	CreateDate datetime not null,
 	CreatorId int not null,
 	UpdateDate datetime not null,
-	IsDeleted bit not null constraint DF_DocumentAsset_IsDeleted  default (0),
+	IsDeleted bit not null  default (0),
 	UpdaterId int not null,
 
 	constraint PK_DocumentAsset primary key (DocumentAssetId),
-	constraint FK_DocumentAsset_CreatorUser foreign key (CreatorId) references Cofoundry.[User] (UserId),
-	constraint FK_DocumentAsset_UpdaterUser foreign key (UpdaterId) references Cofoundry.[User] (UserId)
-)
+	constraint FK_DocumentAsset_CreatorUser foreign key (CreatorId) references Cofoundry.User (UserId),
+	constraint FK_DocumentAsset_UpdaterUser foreign key (UpdaterId) references Cofoundry.User (UserId)
+);
 
 
 /****** Cofoundry.DocumentAssetGroup ******/
 
 create table Cofoundry.DocumentAssetGroup (
 
-	DocumentAssetGroupId int identity(1,1) not null,
+	DocumentAssetGroupId int not null AUTO_INCREMENT,
 	GroupName nvarchar(64) not null,
 	ParentDocumentAssetGroupId int null,
-	CreateDate datetime2(4) not null,
+	CreateDate datetime not null,
 	CreatorId int not null,
-	IsDeleted bit not null constraint DF_DocumentAssetGroup_IsDeleted default (0),
+	IsDeleted bit not null default (0),
 
 	constraint PK_DocumentAssetGroup primary key (DocumentAssetGroupId),
-	constraint FK_DocumentAssetGroup_CreatorUser foreign key (CreatorId) references Cofoundry.[User] (UserId),
+	constraint FK_DocumentAssetGroup_CreatorUser foreign key (CreatorId) references Cofoundry.User (UserId),
 	constraint FK_DocumentAssetGroup_ParentDocumentAssetGroup foreign key (ParentDocumentAssetGroupId) references Cofoundry.DocumentAssetGroup (DocumentAssetGroupId)
-)
+);
 
 
 /****** Cofoundry.DocumentAssetGroupItem ******/
@@ -278,13 +264,13 @@ create table Cofoundry.DocumentAssetGroupItem (
 	DocumentAssetGroupId int not null,
 	CreatorId int not null,
 	Ordering int not null,
-	CreateDate datetime2(4) not null,
+	CreateDate datetime not null,
 
 	constraint PK_DocumentAssetGroupItem primary key (DocumentAssetId, DocumentAssetGroupId),
-	constraint FK_DocumentAssetGroupItem_CreatorUser foreign key (CreatorId) references Cofoundry.[User] (UserId),
+	constraint FK_DocumentAssetGroupItem_CreatorUser foreign key (CreatorId) references Cofoundry.User (UserId),
 	constraint FK_DocumentAssetGroupItem_DocumentAsset foreign key (DocumentAssetId) references Cofoundry.DocumentAsset (DocumentAssetId),
 	constraint FK_DocumentAssetGroupItem_DocumentAssetGroup foreign key (DocumentAssetGroupId) references Cofoundry.DocumentAssetGroup (DocumentAssetGroupId)
-)
+);
 
 
 /****** Cofoundry.DocumentAssetTag ******/
@@ -293,14 +279,15 @@ create table Cofoundry.DocumentAssetTag (
 
 	DocumentAssetId int not null,
 	TagId int not null,
-	CreateDate datetime2(4) not null,
+	CreateDate datetime not null,
 	CreatorId int not null,
 
 	constraint PK_DocumentAssetTag primary key (DocumentAssetId, TagId),
-	constraint FK_DocumentAssetTag_CreatorUser foreign key (CreatorId) references Cofoundry.[User] (UserId),
+	constraint FK_DocumentAssetTag_CreatorUser foreign key (CreatorId) references Cofoundry.User (UserId),
 	constraint FK_DocumentAssetTag_DocumentAsset foreign key (DocumentAssetId) references Cofoundry.DocumentAsset (DocumentAssetId),
 	constraint FK_DocumentAssetTag_Tag foreign key (TagId) references Cofoundry.Tag (TagId)
-)
+);
+
 
 
 /****** Cofoundry.FailedAuthenticationAttempt ******/
@@ -310,14 +297,14 @@ create table Cofoundry.FailedAuthenticationAttempt (
 	UserAreaCode char(3) not null,
 	Username nvarchar(150) not null,
 	IPAddress varchar(45) not null,
-	AttemptDate datetime2(7) not null,
-	FailedAuthenticationAttemptId int identity(1,1) not null,
+	AttemptDate datetime not null,
+	FailedAuthenticationAttemptId int not null AUTO_INCREMENT,
 
 	constraint PK_FailedAuthenticationAttempt primary key (FailedAuthenticationAttemptId)
-)
+);
 
-create index IX_FailedAuthenticationAttempt_IPAddress on Cofoundry.FailedAuthenticationAttempt (UserAreaCode, IPAddress, AttemptDate)
-create index IX_FailedAuthenticationAttempt_Username on Cofoundry.FailedAuthenticationAttempt (UserAreaCode, Username, AttemptDate)
+create index IX_FailedAuthenticationAttempt_IPAddress on Cofoundry.FailedAuthenticationAttempt (UserAreaCode, IPAddress, AttemptDate);
+create index IX_FailedAuthenticationAttempt_Username on Cofoundry.FailedAuthenticationAttempt (UserAreaCode, Username, AttemptDate);
 
 
 /****** Cofoundry.ImageCropAnchorLocation ******/
@@ -328,49 +315,50 @@ create table Cofoundry.ImageCropAnchorLocation(
 	Title nvarchar(50) not null,
 
 	constraint PK_ImageCropAnchorLocation primary key (ImageCropAnchorLocationId)
-)
+);
 
 
 /****** Cofoundry.ImageAsset ******/
 
 create table Cofoundry.ImageAsset (
 
-	ImageAssetId int identity(1,1) not null,
-	[FileName] nvarchar(128) not null,
+	ImageAssetId int not null AUTO_INCREMENT,
+	FileName nvarchar(128) not null,
 	FileDescription nvarchar(512) not null,
 	Width int not null,
 	Height int not null,
 	Extension nvarchar(5) not null,
 	FileSize int not null,
-	CreateDate datetime2(4) not null,
+	CreateDate datetime not null,
 	CreatorId int not null,
-	UpdateDate datetime2(4) not null,
+	UpdateDate datetime not null,
 	IsDeleted bit not null,
 	ImageCropAnchorLocationId int null,
 	UpdaterId int not null,
 
 	constraint PK_ImageAsset primary key (ImageAssetId),
-	constraint FK_ImageAsset_CreatorUser foreign key (CreatorId) references Cofoundry.[User] (UserId),
+	constraint FK_ImageAsset_CreatorUser foreign key (CreatorId) references Cofoundry.User (UserId),
 	constraint FK_ImageAsset_ImageCropAnchorLocation foreign key (ImageCropAnchorLocationId) references Cofoundry.ImageCropAnchorLocation (ImageCropAnchorLocationId),
-	constraint FK_ImageAsset_UpdaterUser foreign key (UpdaterId) references Cofoundry.[User] (UserId)
-)
+	constraint FK_ImageAsset_UpdaterUser foreign key (UpdaterId) references Cofoundry.User (UserId)
+);
 
 
 /****** Cofoundry.ImageAssetGroup ******/
 
 create table Cofoundry.ImageAssetGroup (
 
-	ImageAssetGroupId int identity(1,1) not null,
+	ImageAssetGroupId int not null AUTO_INCREMENT,
 	GroupName nvarchar(64) not null,
 	ParentImageAssetGroupId int null,
-	CreateDate datetime2(4) not null,
+	CreateDate datetime not null,
 	CreatorId int not null,
-	IsDeleted bit not null constraint DF_ImageAssetGroup_IsDeleted default (0),
+	IsDeleted bit not null default (0),
 
 	constraint PK_ImageAssetGroup primary key (ImageAssetGroupId),
-	constraint FK_ImageAssetGroup_CreatorUser foreign key (CreatorId) references Cofoundry.[User] (UserId),
+	constraint FK_ImageAssetGroup_CreatorUser foreign key (CreatorId) references Cofoundry.User (UserId),
 	constraint FK_ImageAssetGroup_ParentImageAssetGroup foreign key (ParentImageAssetGroupId) references Cofoundry.ImageAssetGroup (ImageAssetGroupId)
-)
+);
+
 
 
 /****** Cofoundry.ImageAssetGroupItem ******/
@@ -380,14 +368,15 @@ create table Cofoundry.ImageAssetGroupItem (
 	ImageAssetId int not null,
 	ImageAssetGroupId int not null,
 	CreatorId int not null,
-	CreateDate smalldatetime not null,
+	CreateDate datetime not null,
 	Ordering int not null,
 
 	constraint PK_ImageAssetGroupItem primary key (ImageAssetId, ImageAssetGroupId),
-	constraint FK_ImageAssetGroupItem_CreatorUser foreign key (CreatorId) references Cofoundry.[User] (UserId),
+	constraint FK_ImageAssetGroupItem_CreatorUser foreign key (CreatorId) references Cofoundry.User (UserId),
 	constraint FK_ImageAssetGroupItem_ImageAsset foreign key (ImageAssetId) references Cofoundry.ImageAsset (ImageAssetId),
 	constraint FK_ImageAssetGroupItem_ImageAssetGroup foreign key (ImageAssetGroupId) references Cofoundry.ImageAssetGroup (ImageAssetGroupId)
-)
+);
+
 
 
 /****** Cofoundry.ImageAssetTag ******/
@@ -396,14 +385,14 @@ create table Cofoundry.ImageAssetTag (
 
 	ImageAssetId int not null,
 	TagId int not null,
-	CreateDate datetime2(4) not null,
+	CreateDate datetime not null,
 	CreatorId int not null,
 
 	constraint PK_ImageAssetTag primary key (ImageAssetId, TagId),
 	constraint FK_ImageAssetTag_ImageAsset foreign key (ImageAssetId) references Cofoundry.ImageAsset (ImageAssetId),
 	constraint FK_ImageAssetTag_Tag foreign key (TagId) references Cofoundry.Tag (TagId),
-	constraint FK_ImageAssetTag_User foreign key (CreatorId) references Cofoundry.[User] (UserId)
-)
+	constraint FK_ImageAssetTag_User foreign key (CreatorId) references Cofoundry.User (UserId)
+);
 
 
 /****** Cofoundry.PageType ******/

@@ -88,7 +88,8 @@ namespace Cofoundry.Core.Data.SimpleDatabase.Internal
                     sqlCmd.Parameters.AddRange(sqlParams);
                 }
 
-                using (var reader = await sqlCmd.ExecuteReaderAsync())
+                
+                using (var reader = sqlCmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
