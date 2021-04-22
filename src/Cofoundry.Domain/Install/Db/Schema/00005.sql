@@ -1,29 +1,28 @@
 ﻿/* Make first and last name optional and add email confirmation */
 
-alter table Cofoundry.[User] alter column FirstName nvarchar(32) null
-alter table Cofoundry.[User] alter column LastName nvarchar(32) null
-alter table Cofoundry.[User] add IsEmailConfirmed bit null
+alter table Cofoundry.User modify column FirstName nvarchar(32) null;
+alter table Cofoundry.User modify column LastName nvarchar(32) null;
+alter table Cofoundry.User add IsEmailConfirmed bit null;
 
-go
 
-update Cofoundry.[User] set IsEmailConfirmed = 0
+update Cofoundry.User set IsEmailConfirmed = 0;
 
-go
 
-alter table Cofoundry.[User] alter column IsEmailConfirmed bit not null
+alter table Cofoundry.User modify column IsEmailConfirmed bit not null;
 
-go
+
 
 /* Role.SpecialistRoleTypeCode > Role.RoleCode */
 
-drop index UIX_Role_SpecialistRoleTypeCode on Cofoundry.[Role]
-go
+drop index UIX_Role_SpecialistRoleTypeCode on Cofoundry.Role;
 
-exec sp_rename 'Cofoundry.[Role].SpecialistRoleTypeCode', 'RoleCode', 'column'
-go
+ALTER TABLE Cofoundry.Role
+ RENAME COLUMN SpecialistRoleTypeCode TO RoleCode;
 
-create unique index UIX_Role_RoleCode on Cofoundry.[Role] (RoleCode) where RoleCode is not null
-go
+
+create unique index UIX_Role_RoleCode on Cofoundry.Role (RoleCode) ;
+
+/* -------------------------------------------------------------------------------------------------------------------- */
 
 /* Renaming WebDirectory to PageDirectory */
 
@@ -61,17 +60,17 @@ go
 
 -- Page.WebDirectoryId
 
-exec sp_rename 'Cofoundry.[Page].WebDirectoryId' , 'PageDirectoryId', 'column'
+exec sp_rename 'Cofoundry.Page.WebDirectoryId' , 'PageDirectoryId', 'column'
 go
 exec sp_rename 'Cofoundry.FK_Page_WebDirectory', 'FK_Page_PageDirectory', 'object'
 go
 
-update Cofoundry.EntityDefinition set [Name] = 'Page Directory' where EntityDefinitionCode = 'COFDIR'
+update Cofoundry.EntityDefinition set Name = 'Page Directory' where EntityDefinitionCode = 'COFDIR'
 go
 
 /* Correct PasswordHash terminology */
 
-exec sp_rename 'Cofoundry.[User].PasswordEncryptionVersion' , 'PasswordHashVersion', 'column'
+exec sp_rename 'Cofoundry.User.PasswordEncryptionVersion' , 'PasswordHashVersion', 'column'
 go
 
 /* Re-naming of template sections to regions and page modules to page blocks */
@@ -181,12 +180,12 @@ end
 go
 
 -- update entity definitions to match the new terms
-insert into Cofoundry.EntityDefinition (EntityDefinitionCode, [Name]) values ('COFPGB', 'Page Version Block')
+insert into Cofoundry.EntityDefinition (EntityDefinitionCode, Name) values ('COFPGB', 'Page Version Block')
 update Cofoundry.UnstructuredDataDependency set RootEntityDefinitionCode = 'COFPGB' where RootEntityDefinitionCode = 'COFPGM'
 update Cofoundry.UnstructuredDataDependency set RelatedEntityDefinitionCode = 'COFPGB' where RelatedEntityDefinitionCode = 'COFPGM'
 delete Cofoundry.EntityDefinition where EntityDefinitionCode = 'COFPGM'
 
-insert into Cofoundry.EntityDefinition (EntityDefinitionCode, [Name]) values ('COFCEB', 'Custom Entity Version Page Block')
+insert into Cofoundry.EntityDefinition (EntityDefinitionCode, Name) values ('COFCEB', 'Custom Entity Version Page Block')
 update Cofoundry.UnstructuredDataDependency set RootEntityDefinitionCode = 'COFCEB' where RootEntityDefinitionCode = 'COFCEM'
 update Cofoundry.UnstructuredDataDependency set RelatedEntityDefinitionCode = 'COFCEB' where RelatedEntityDefinitionCode = 'COFCEM'
 delete Cofoundry.EntityDefinition where EntityDefinitionCode = 'COFCEM'
@@ -198,22 +197,22 @@ go
 -- remove duplicates
 with pageTemplateDuplicates as (
   select 
-	[FileName], 
+	FileName, 
 	IsArchived, 
-    row_number() over (partition by [FileName], IsArchived order by UpdateDate) as [RowNumber]
+    row_number() over (partition by FileName, IsArchived order by UpdateDate) as RowNumber
   from Cofoundry.PageTemplate
 )
-delete pageTemplateDuplicates where [RowNumber] > 1;
+delete pageTemplateDuplicates where RowNumber > 1;
 
 
 with pageBlockDuplicates as (
   select 
-	[FileName], 
+	FileName, 
 	IsArchived, 
-    row_number() over (partition by  [FileName], IsArchived order by UpdateDate) as [RowNumber]
+    row_number() over (partition by  FileName, IsArchived order by UpdateDate) as RowNumber
   from Cofoundry.PageBlockType
 )
-delete pageBlockDuplicates where [RowNumber] > 1;
+delete pageBlockDuplicates where RowNumber > 1;
 
 go
 
@@ -223,14 +222,14 @@ drop index UIX_PageTemplate_FullPath on Cofoundry.PageTemplate
 drop index UIX_PageTemplate_Name on Cofoundry.PageTemplate
 drop index UIX_PageTemplateRegion_Name on Cofoundry.PageTemplateRegion
 drop index UIX_PageBlockType_Name on Cofoundry.PageBlockType
-drop index UIX_User_IsSystemAccount on Cofoundry.[User]
+drop index UIX_User_IsSystemAccount on Cofoundry.User
 
 go
 
-create unique index UIX_PageTemplate_FullPath on Cofoundry.PageTemplate ([FullPath]) where IsArchived = 0
-create unique index UIX_PageTemplate_Name on Cofoundry.PageTemplate ([Name]) where IsArchived = 0
-create unique index UIX_PageTemplateRegion_Name on Cofoundry.PageTemplateRegion (PageTemplateId, [Name])
-create unique index UIX_PageBlockType_Name on Cofoundry.PageBlockType ([Name]) where IsArchived = 0
-create unique index UIX_User_IsSystemAccount on Cofoundry.[User] (IsSystemAccount) where IsSystemAccount = 1
+create unique index UIX_PageTemplate_FullPath on Cofoundry.PageTemplate (FullPath) where IsArchived = 0
+create unique index UIX_PageTemplate_Name on Cofoundry.PageTemplate (Name) where IsArchived = 0
+create unique index UIX_PageTemplateRegion_Name on Cofoundry.PageTemplateRegion (PageTemplateId, Name)
+create unique index UIX_PageBlockType_Name on Cofoundry.PageBlockType (Name) where IsArchived = 0
+create unique index UIX_User_IsSystemAccount on Cofoundry.User (IsSystemAccount) where IsSystemAccount = 1
 
 go
