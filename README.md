@@ -1,4 +1,4 @@
-## Fork version for MySQL
+## Fork version for MySQL - not working yet. In migration process...
 
 This work is to convert this project to work with MySQL Server
 
