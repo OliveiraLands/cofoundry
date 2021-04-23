@@ -1,4 +1,4 @@
-﻿/* Modernize the page meta data properties */
+/* Modernize the page meta data properties */
 
 alter table Cofoundry.PageVersion modify column OpenGraphTitle nvarchar (300) null;
 alter table Cofoundry.PageVersion modify column MetaDescription nvarchar (300) null;

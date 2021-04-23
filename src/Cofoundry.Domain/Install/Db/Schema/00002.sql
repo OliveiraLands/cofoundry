@@ -1,4 +1,4 @@
-﻿/**
+/**
 * Make Page Templates auto-bootstrapable
 * This involes making data that is automatically added/removed by the system
 * soft deletable to avoid any accidental mistakes and allow for data migration
@@ -37,7 +37,7 @@ create unique index UIX_PageTemplate_Name on Cofoundry.PageTemplate (Name);
 alter table Cofoundry.PageTemplateSection drop constraint FK_PageTemplateSection_User;
 alter table Cofoundry.PageTemplateSection drop column CreatorId;
 alter table Cofoundry.PageTemplateSection add UpdateDate datetime null;
-alter table Cofoundry.PageTemplateSection alter column Name nvarchar(50) not null;
+alter table Cofoundry.PageTemplateSection modify column Name nvarchar(50) not null;
 
 -- create unique index UIX_PageTemplateSection_Name on Cofoundry.PageTemplateSection (PageTemplateId, Name);
 
