@@ -4,12 +4,10 @@ alter table Cofoundry.User modify column FirstName nvarchar(32) null;
 alter table Cofoundry.User modify column LastName nvarchar(32) null;
 alter table Cofoundry.User add IsEmailConfirmed bit null;
 
-
 update Cofoundry.User set IsEmailConfirmed = 0;
 
 
 alter table Cofoundry.User modify column IsEmailConfirmed bit not null;
-
 
 
 /* Role.SpecialistRoleTypeCode > Role.RoleCode */
@@ -27,127 +25,123 @@ create unique index UIX_Role_RoleCode on Cofoundry.Role (RoleCode) ;
 /* Renaming WebDirectory to PageDirectory */
 
 -- WebDirectory -> PageDirectory
-exec sp_rename 'Cofoundry.WebDirectory', 'PageDirectory'
-go
-exec sp_rename 'Cofoundry.PageDirectory.WebDirectoryId' , 'PageDirectoryId', 'column'
-go
-exec sp_rename 'Cofoundry.PageDirectory.ParentWebDirectoryId' , 'ParentPageDirectoryId', 'column'
-go
+rename table Cofoundry.WebDirectory to Cofoundry.PageDirectory;
+
+alter table Cofoundry.PageDirectory rename column WebDirectoryId to PageDirectoryId;
+
+alter table Cofoundry.PageDirectory rename column ParentWebDirectoryId to ParentPageDirectoryId;
+
 exec sp_rename 'Cofoundry.PK_WebDirectory', 'PK_PageDirectory', 'object'
-go
+
 exec sp_rename 'Cofoundry.FK_WebDirectory_CreatorUser', 'FK_PageDirectory_CreatorUser', 'object'
-go
+
 exec sp_rename 'Cofoundry.FK_WebDirectory_ParentWebDirectory', 'FK_PageDirectory_ParentPageDirectory', 'object'
-go
+
 exec sp_rename 'Cofoundry.PageDirectory.UIX_WebDirectory_UrlPath', 'UIX_PageDirectory_UrlPath', 'index'
-go
+
 
 -- WebDirectoryLocale -> PageDirectoryLocale
-exec sp_rename 'Cofoundry.WebDirectoryLocale', 'PageDirectoryLocale'
-go
-exec sp_rename 'Cofoundry.PageDirectoryLocale.WebDirectoryLocaleId' , 'PageDirectoryLocaleId', 'column'
-go
-exec sp_rename 'Cofoundry.PageDirectoryLocale.WebDirectoryId' , 'PageDirectoryId', 'column'
-go
+rename table Cofoundry.WebDirectoryLocale to Cofoundry.PageDirectoryLocale;
+
+alter table Cofoundry.PageDirectoryLocale rename column WebDirectoryLocaleId to PageDirectoryLocaleId;
+
+alter table Cofoundry.PageDirectoryLocale rename column WebDirectoryId to PageDirectoryId;
+
 exec sp_rename 'Cofoundry.PK_WebDirectoryLocale', 'PK_PageDirectoryLocale', 'object'
-go
+
 exec sp_rename 'Cofoundry.FK_WebDirectoryLocale_CreatorUser', 'FK_PageDirectoryLocale_CreatorUser', 'object'
-go
+
 exec sp_rename 'Cofoundry.FK_WebDirectoryLocale_Locale', 'FK_PageDirectoryLocale_Locale', 'object'
-go
+
 exec sp_rename 'Cofoundry.FK_WebDirectoryLocale_WebDirectory', 'FK_PageDirectoryLocale_PageDirectory', 'object'
-go
+
 
 -- Page.WebDirectoryId
 
-exec sp_rename 'Cofoundry.Page.WebDirectoryId' , 'PageDirectoryId', 'column'
-go
-exec sp_rename 'Cofoundry.FK_Page_WebDirectory', 'FK_Page_PageDirectory', 'object'
-go
+alter table Cofoundry.Page rename column WebDirectoryId to PageDirectoryId;
 
-update Cofoundry.EntityDefinition set Name = 'Page Directory' where EntityDefinitionCode = 'COFDIR'
-go
+exec sp_rename 'Cofoundry.FK_Page_WebDirectory', 'FK_Page_PageDirectory', 'object'
+
+
+update Cofoundry.EntityDefinition set Name = 'Page Directory' where EntityDefinitionCode = 'COFDIR';
+
+
 
 /* Correct PasswordHash terminology */
 
-exec sp_rename 'Cofoundry.User.PasswordEncryptionVersion' , 'PasswordHashVersion', 'column'
-go
+alter table Cofoundry.User rename column PasswordEncryptionVersion to PasswordHashVersion;
+
 
 /* Re-naming of template sections to regions and page modules to page blocks */
 
 -- PageTemplateSection to PageTemplateRegion
-exec sp_rename 'Cofoundry.PageTemplateSection', 'PageTemplateRegion'
-go
-exec sp_rename 'Cofoundry.PageTemplateRegion.PageTemplateSectionId' , 'PageTemplateRegionId', 'column'
-go
-exec sp_rename 'Cofoundry.PageTemplateRegion.IsCustomEntitySection' , 'IsCustomEntityRegion', 'column'
-go
+rename table Cofoundry.PageTemplateSection to Cofoundry.PageTemplateRegion;
+
+alter table Cofoundry.PageTemplateRegion rename column PageTemplateSectionId to PageTemplateRegionId;
+
+alter table Cofoundry.PageTemplateRegion rename column IsCustomEntitySection to IsCustomEntityRegion;
+
+
 exec sp_rename 'Cofoundry.PK_PageTemplateSection', 'PK_PageTemplateRegion', 'object'
-go
+
 exec sp_rename 'Cofoundry.FK_PageTemplateSection_PageTemplate', 'FK_PageTemplateRegion_PageTemplate', 'object'
-go
+
 exec sp_rename 'Cofoundry.PageTemplateRegion.UIX_PageTemplateSection_Name', 'UIX_PageTemplateRegion_Name', 'index'
-go
+
 
 -- PageModuleType to PageBlockType
 
-exec sp_rename 'Cofoundry.PageModuleType', 'PageBlockType'
-go
-exec sp_rename 'Cofoundry.PageBlockType.PageModuleTypeId' , 'PageBlockTypeId', 'column'
-go
+rename table Cofoundry.PageModuleType to Cofoundry.PageBlockType;
+
+alter table Cofoundry.PageBlockType rename column PageModuleTypeId to PageBlockTypeId;
+
+
 exec sp_rename 'Cofoundry.PK_PageModuleType', 'PK_PageBlockType', 'object'
-go
+
 exec sp_rename 'Cofoundry.PageBlockType.UIX_PageModuleType_Name', 'UIX_PageBlockType_Name', 'index'
-go
+
 
 -- PageModuleTypeTemplate to PageBlockTypeTemplate
 
-exec sp_rename 'Cofoundry.PageModuleTypeTemplate', 'PageBlockTypeTemplate'
-go
-exec sp_rename 'Cofoundry.PageBlockTypeTemplate.PageModuleTypeTemplateId' , 'PageBlockTypeTemplateId', 'column'
-go
-exec sp_rename 'Cofoundry.PageBlockTypeTemplate.PageModuleTypeId' , 'PageBlockTypeId', 'column'
-go
+rename table Cofoundry.PageModuleTypeTemplate to Cofoundry.PageBlockTypeTemplate;
+
+alter table Cofoundry.PageBlockTypeTemplate rename column PageModuleTypeTemplateId to PageBlockTypeTemplateId;
+
+alter table Cofoundry.PageBlockTypeTemplate rename column PageModuleTypeId to PageBlockTypeId;
+
 exec sp_rename 'Cofoundry.PK_PageModuleTypeTemplate', 'PK_PageBlockTypeTemplate', 'object'
-go
+
 exec sp_rename 'Cofoundry.FK_PageModuleTypeTemplate_PageModuleType', 'FK_PageBlockTypeTemplate_PageBlockType', 'object'
-go
 
 -- PageVersionModule to PageVersionBlock
 
-exec sp_rename 'Cofoundry.PageVersionModule', 'PageVersionBlock'
-go
-exec sp_rename 'Cofoundry.PageVersionBlock.PageVersionModuleId' , 'PageVersionBlockId', 'column'
-go
-exec sp_rename 'Cofoundry.PageVersionBlock.PageTemplateSectionId' , 'PageTemplateRegionId', 'column'
-go
-exec sp_rename 'Cofoundry.PageVersionBlock.PageModuleTypeId' , 'PageBlockTypeId', 'column'
-go
-exec sp_rename 'Cofoundry.PageVersionBlock.PageModuleTypeTemplateId' , 'PageBlockTypeTemplateId', 'column'
-go
+rename table Cofoundry.PageVersionModule to Cofoundry.PageVersionBlock;
+
+alter table Cofoundry.PageVersionBlock rename column PageVersionModuleId to PageVersionBlockId;
+
+alter table Cofoundry.PageVersionBlock  rename column PageTemplateSectionId to PageTemplateRegionId;
+
+alter table Cofoundry.PageVersionBlock rename column PageModuleTypeId to PageBlockTypeId;
+
+alter table Cofoundry.PageVersionBlock rename column PageModuleTypeTemplateId to PageBlockTypeTemplateId;
+
 exec sp_rename 'Cofoundry.PK_PageVersionModule', 'PK_PageVersionBlock', 'object'
-go
 exec sp_rename 'Cofoundry.FK_PageVersionModule_CreatorUser', 'FK_PageVersionBlock_CreatorUser', 'object'
-go
 exec sp_rename 'Cofoundry.FK_PageVersionModule_PageModuleType', 'FK_PageVersionBlock_PageBlockType', 'object'
-go
 exec sp_rename 'Cofoundry.FK_PageVersionModule_PageModuleTypeTemplate', 'FK_PageVersionBlock_PageBlockTypeTemplate', 'object'
-go
 exec sp_rename 'Cofoundry.FK_PageVersionModule_PageTemplateSection', 'FK_PageVersionBlock_PageTemplateRegion', 'object'
-go
 exec sp_rename 'Cofoundry.FK_PageVersionModule_PageVersion', 'FK_PageVersionBlock_PageVersion', 'object'
-go
 
 -- CustomEntityVersionPageModule to CustomEntityVersionPageBlock
 
-exec sp_rename 'Cofoundry.CustomEntityVersionPageModule', 'CustomEntityVersionPageBlock'
-go
-exec sp_rename 'Cofoundry.CustomEntityVersionPageBlock.CustomEntityVersionPageModuleId' , 'CustomEntityVersionPageBlockId', 'column'
-go
-exec sp_rename 'Cofoundry.CustomEntityVersionPageBlock.PageTemplateSectionId' , 'PageTemplateRegionId', 'column'
-go
-exec sp_rename 'Cofoundry.CustomEntityVersionPageBlock.PageModuleTypeId' , 'PageBlockTypeId', 'column'
-go
+rename table Cofoundry.CustomEntityVersionPageModule to Cofoundry.CustomEntityVersionPageBlock;
+
+alter table Cofoundry.CustomEntityVersionPageBlock rename column CustomEntityVersionPageModuleId to CustomEntityVersionPageBlockId;
+
+alter table Cofoundry.CustomEntityVersionPageBlock rename column PageTemplateSectionId to PageTemplateRegionId;
+
+alter table Cofoundry.CustomEntityVersionPageBlock  rename column PageModuleTypeId to PageBlockTypeId;
+
 exec sp_rename 'Cofoundry.CustomEntityVersionPageBlock.PageModuleTypeTemplateId' , 'PageBlockTypeTemplateId', 'column'
 go
 exec sp_rename 'Cofoundry.PK_CustomEntityVersionPageModule', 'PK_CustomEntityVersionPageBlock', 'object'
