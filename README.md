@@ -1,6 +1,6 @@
 ## Fork version for MySQL - not working yet. In migration process...
 
-This work is to convert this project to work with MySQL Server
+This work is to convert this project to work with MySQL Server - Any help are welcome !
 
 ![Cofoundry](https://www.cofoundry.org/content/images/external/logo_for_github_readme.png)
 
