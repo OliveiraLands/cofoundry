@@ -62,8 +62,8 @@ alter table Cofoundry.DocumentAsset drop column IsDeleted
 alter table Cofoundry.ImageAsset alter column FileSize bigint not null
 alter table Cofoundry.ImageAsset alter column FileDescription nvarchar(max) not null
 alter table Cofoundry.DocumentAsset alter column [Title] nvarchar(130) not null
-alter table Cofoundry.DocumentAsset alter column [FileName] nvarchar(130) not null
-alter table Cofoundry.ImageAsset alter column [FileName] nvarchar(130) not null
+alter table Cofoundry.DocumentAsset alter column FileName nvarchar(130) not null
+alter table Cofoundry.ImageAsset alter column FileName nvarchar(130) not null
 alter table Cofoundry.ImageAsset add [Title] nvarchar(130) null
 alter table Cofoundry.ImageAsset alter column Extension nvarchar(30) not null
 
@@ -115,7 +115,7 @@ go
 	#257 Remove soft-deletes 
 */
 
-delete from Cofoundry.[Page] where IsDeleted = 1
+delete from Cofoundry.Page where IsDeleted = 1
 delete from Cofoundry.PageGroup where IsDeleted = 1
 delete from Cofoundry.ImageAssetGroup where IsDeleted = 1
 delete from Cofoundry.DocumentAssetGroup where IsDeleted = 1
@@ -143,8 +143,8 @@ delete from Cofoundry.UnstructuredDataDependency
 from Cofoundry.UnstructuredDataDependency e
 inner join @DeletedPageDirectory d on e.RootEntityId = d.PageDirectoryId and RootEntityDefinitionCode = @DefinitionCode
 
-delete Cofoundry.[Page]
-from Cofoundry.[Page] e
+delete Cofoundry.Page
+from Cofoundry.Page e
 inner join @DeletedPageDirectory d on e.PageDirectoryId = d.PageDirectoryId
 
 delete Cofoundry.PageDirectoryLocale
@@ -159,20 +159,20 @@ inner join @DeletedPageDirectory d on e.PageDirectoryId = d.PageDirectoryId
 
 go
 
-drop index UIX_Page_Path on Cofoundry.[Page]
+drop index UIX_Page_Path on Cofoundry.Page
 drop index UIX_PageDirectory_UrlPath on Cofoundry.PageDirectory
 
 alter table Cofoundry.PageGroup drop constraint DF_PageGroup_IsDeleted
 alter table Cofoundry.ImageAssetGroup drop constraint DF_ImageAssetGroup_IsDeleted
 alter table Cofoundry.DocumentAssetGroup drop constraint DF_DocumentAssetGroup_IsDeleted
 
-alter table Cofoundry.[Page] drop column IsDeleted
+alter table Cofoundry.Page drop column IsDeleted
 alter table Cofoundry.PageGroup drop column IsDeleted
 alter table Cofoundry.ImageAssetGroup drop column IsDeleted
 alter table Cofoundry.DocumentAssetGroup drop column IsDeleted
 alter table Cofoundry.PageDirectory drop column IsActive
 
-create unique index UIX_Page_Path on Cofoundry.[Page] (PageDirectoryId, LocaleId, UrlPath)
+create unique index UIX_Page_Path on Cofoundry.Page (PageDirectoryId, LocaleId, UrlPath)
 create unique index UIX_PageDirectory_UrlPath on Cofoundry.PageDirectory (ParentPageDirectoryId, UrlPath)
 create unique index UIX_PageDirectory_RootDirectory on Cofoundry.PageDirectory (ParentPageDirectoryId) where ParentPageDirectoryId is null
 go

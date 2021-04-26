@@ -1,5 +1,5 @@
 ﻿CREATE FUNCTION Cofoundry.StringListToTbl (
-	@list nvarchar(max),
+	@list text,
     @delimiter nchar(1) = N','
 	)
 RETURNS @tbl TABLE (Position int IDENTITY(1, 1) NOT NULL,

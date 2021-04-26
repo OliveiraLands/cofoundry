@@ -16,9 +16,9 @@ go
 
 -- name does not have to be unique
 drop index UIX_PageBlockType_Name on Cofoundry.PageBlockType
-create unique index UIX_PageBlockType_FileName on Cofoundry.PageBlockType ([FileName]) where IsArchived = 0
+create unique index UIX_PageBlockType_FileName on Cofoundry.PageBlockType (FileName) where IsArchived = 0
 
-create unique index UIX_PageBlockTypeTemplate_FileName on Cofoundry.PageBlockTypeTemplate ([FileName])
+create unique index UIX_PageBlockTypeTemplate_FileName on Cofoundry.PageBlockTypeTemplate (FileName)
 
 go
 
@@ -37,7 +37,7 @@ select @NumTemplatesInUseWithMultiplePages = count(*) from (
 	inner join Cofoundry.PageTemplateRegion r on b.PageTemplateRegionId = r.PageTemplateRegionId
 	inner join Cofoundry.PageVersion pv on pv.PageTemplateId = r.PageTemplateId
 	inner join Cofoundry.PageTemplate pt on pt.PageTemplateId = pv.PageTemplateId
-	inner join Cofoundry.[Page] p on p.PageId = pv.PageId
+	inner join Cofoundry.Page p on p.PageId = pv.PageId
 	where p.IsDeleted = 0 and pt.IsArchived = 0 and p.CustomEntityDefinitionCode is not null
 	group by pv.PageTemplateId, pv.PageId
 	) as PagesPerTemplate
@@ -50,7 +50,7 @@ go
 
 alter table Cofoundry.CustomEntityVersionPageBlock add PageId int null
 alter table Cofoundry.CustomEntityVersionPageBlock add 
-	constraint FK_CustomEntityVersionPageBlock_Page foreign key (PageId) references Cofoundry.[Page] (PageId)
+	constraint FK_CustomEntityVersionPageBlock_Page foreign key (PageId) references Cofoundry.Page (PageId)
 go
 
 -- First update based on active pages/templates to give them priority
@@ -60,7 +60,7 @@ from Cofoundry.CustomEntityVersionPageBlock b
 inner join Cofoundry.PageTemplateRegion r on b.PageTemplateRegionId = r.PageTemplateRegionId
 inner join Cofoundry.PageVersion pv on pv.PageTemplateId = r.PageTemplateId
 inner join Cofoundry.PageTemplate pt on pt.PageTemplateId = pv.PageTemplateId
-inner join Cofoundry.[Page] p on p.PageId = pv.PageId
+inner join Cofoundry.Page p on p.PageId = pv.PageId
 where p.IsDeleted = 0 and pt.IsArchived = 0
 
 -- update the remaining blocks to ensure they have a value

@@ -25,7 +25,7 @@ namespace Cofoundry.Core.EntityFramework
         }
 
         /// <summary>
-        /// Defines the property as an MS SqlServer nvarchar(max) field.
+        /// Defines the property as an MS SqlServer text field.
         /// </summary>
         /// <typeparam name="TProperty">Type of property being configured.</typeparam>
         /// <param name="builder">The property builder instance to act on and chain.</param>

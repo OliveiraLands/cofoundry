@@ -14,7 +14,7 @@
  -- ** ValidateData **
 
  if (exists (
-	 select * from Cofoundry.[Page] p 
+	 select * from Cofoundry.Page p 
 	 left outer join Cofoundry.PageVersion pv on pv.PageId = p.PageId
 	 where pv.WorkFlowStatusId in (1, 4) and PageVersionId is null
 	 )) throw 50000, 'Invalid page version data. Pages must have at least one draft or published version', 1
@@ -30,28 +30,28 @@
 
 create table Cofoundry.PublishStatus (
 	PublishStatusCode char(1) not null,
-	[Name] varchar(20) not null,
+	Name varchar(20) not null,
 
 	constraint PK_PublishStatus primary key (PublishStatusCode)
 )
 go
 
-create unique index UIX_PublishStatus_Name on Cofoundry.PublishStatus ([Name])
+create unique index UIX_PublishStatus_Name on Cofoundry.PublishStatus (Name)
 
 go
 
-insert into Cofoundry.PublishStatus (PublishStatusCode, [Name]) values ('U', 'Unpublished')
-insert into Cofoundry.PublishStatus (PublishStatusCode, [Name]) values ('P', 'Published')
+insert into Cofoundry.PublishStatus (PublishStatusCode, Name) values ('U', 'Unpublished')
+insert into Cofoundry.PublishStatus (PublishStatusCode, Name) values ('P', 'Published')
 
 go
 
-alter table Cofoundry.[Page] add PublishStatusCode char(1) null
-alter table Cofoundry.[Page] add PublishDate datetime2(7) null
-alter table Cofoundry.[Page] add constraint FK_Page_PublishStatus foreign key (PublishStatusCode) references Cofoundry.PublishStatus (PublishStatusCode)
+alter table Cofoundry.Page add PublishStatusCode char(1) null
+alter table Cofoundry.Page add PublishDate datetime2(7) null
+alter table Cofoundry.Page add constraint FK_Page_PublishStatus foreign key (PublishStatusCode) references Cofoundry.PublishStatus (PublishStatusCode)
 
-alter table Cofoundry.[CustomEntity] add PublishStatusCode char(1) null
-alter table Cofoundry.[CustomEntity] add PublishDate datetime2(7) null
-alter table Cofoundry.[CustomEntity] add constraint FK_CustomEntity_PublishStatus foreign key (PublishStatusCode) references Cofoundry.PublishStatus (PublishStatusCode)
+alter table Cofoundry.CustomEntity add PublishStatusCode char(1) null
+alter table Cofoundry.CustomEntity add PublishDate datetime2(7) null
+alter table Cofoundry.CustomEntity add constraint FK_CustomEntity_PublishStatus foreign key (PublishStatusCode) references Cofoundry.PublishStatus (PublishStatusCode)
 
 go
 
@@ -64,10 +64,10 @@ go
    from Cofoundry.PageVersion
    where WorkFlowStatusId in (1,4) and IsDeleted = 0
 )
-update Cofoundry.[Page] 
+update Cofoundry.Page 
 set PublishStatusCode = case when WorkFlowStatusId = 4 then 'P' else 'U' end,
 	PublishDate = case when WorkFlowStatusId = 4 then pv.CreateDate else null end
-from Cofoundry.[Page] p
+from Cofoundry.Page p
 left outer join CTE_LatestPageVersions pv on p.PageId = pv.PageId
 where RowNumber = 1
 
@@ -90,10 +90,10 @@ where RowNumber = 1
 
 go
 
-alter table Cofoundry.[Page] alter column PublishStatusCode char(1) not null
-alter table Cofoundry.[CustomEntity] alter column PublishStatusCode char(1) not null
-alter table Cofoundry.[Page] add constraint CK_Page_PublishDate_SetWhenPublished check ((PublishStatusCode = 'P' and PublishDate is not null) or PublishStatusCode = 'U') 
-alter table Cofoundry.[CustomEntity] add constraint CK_CustomEntity_PublishDate_SetWhenPublished check ((PublishStatusCode = 'P' and PublishDate is not null) or PublishStatusCode = 'U') 
+alter table Cofoundry.Page alter column PublishStatusCode char(1) not null
+alter table Cofoundry.CustomEntity alter column PublishStatusCode char(1) not null
+alter table Cofoundry.Page add constraint CK_Page_PublishDate_SetWhenPublished check ((PublishStatusCode = 'P' and PublishDate is not null) or PublishStatusCode = 'U') 
+alter table Cofoundry.CustomEntity add constraint CK_CustomEntity_PublishDate_SetWhenPublished check ((PublishStatusCode = 'P' and PublishDate is not null) or PublishStatusCode = 'U') 
 go
 
 -- ** Prepare for WorkFlowStatus table changes **
@@ -136,13 +136,13 @@ go
 
 create table Cofoundry.PublishStatusQuery (
 	PublishStatusQueryId smallint not null,
-	[Name] varchar(20) not null,
+	Name varchar(20) not null,
 
 	constraint PK_PublishStatusQuery primary key (PublishStatusQueryId)
 )
 go
 
-create unique index UIX_PublishStatusQuery_Name on Cofoundry.PublishStatusQuery ([Name])
+create unique index UIX_PublishStatusQuery_Name on Cofoundry.PublishStatusQuery (Name)
 go
 
 -- ** EntityPublishStatusQuery **
@@ -153,7 +153,7 @@ create table Cofoundry.PagePublishStatusQuery (
 	PageVersionId int not null,
 
 	constraint PK_PagePublishStatusQuery primary key (PageId, PublishStatusQueryId),
-	constraint FK_PagePublishStatusQuery_Page foreign key (PageId) references Cofoundry.[Page] (PageId),
+	constraint FK_PagePublishStatusQuery_Page foreign key (PageId) references Cofoundry.Page (PageId),
 	constraint FK_PagePublishStatusQuery_PageVersion foreign key (PageVersionId) references Cofoundry.PageVersion (PageVersionId),
 	constraint FK_PagePublishStatusQuery_PublishStatusQuery foreign key (PublishStatusQueryId) references Cofoundry.PublishStatusQuery (PublishStatusQueryId)
 )
@@ -171,10 +171,10 @@ create table Cofoundry.CustomEntityPublishStatusQuery (
 
 go
 
-insert into Cofoundry.PublishStatusQuery (PublishStatusQueryId, [Name]) values (0, 'Published') 
-insert into Cofoundry.PublishStatusQuery (PublishStatusQueryId, [Name]) values (1, 'Latest') 
-insert into Cofoundry.PublishStatusQuery (PublishStatusQueryId, [Name]) values (2, 'Draft') 
-insert into Cofoundry.PublishStatusQuery (PublishStatusQueryId, [Name]) values (3, 'PreferPublished') 
+insert into Cofoundry.PublishStatusQuery (PublishStatusQueryId, Name) values (0, 'Published') 
+insert into Cofoundry.PublishStatusQuery (PublishStatusQueryId, Name) values (1, 'Latest') 
+insert into Cofoundry.PublishStatusQuery (PublishStatusQueryId, Name) values (2, 'Draft') 
+insert into Cofoundry.PublishStatusQuery (PublishStatusQueryId, Name) values (3, 'PreferPublished') 
 
 
 -- PublishStatusQuery.Published
@@ -183,7 +183,7 @@ insert into Cofoundry.PublishStatusQuery (PublishStatusQueryId, [Name]) values (
 	select v.PageId, v.PageVersionId,
 		row_number() over (partition by v.PageId order by v.CreateDate desc) as RowNumber
 	from Cofoundry.PageVersion v
-	inner join Cofoundry.[Page] p on p.PageId = v.PageId
+	inner join Cofoundry.Page p on p.PageId = v.PageId
 	where WorkFlowStatusId = 4 and p.PublishStatusCode = 'P' and v.IsDeleted = 0 and p.IsDeleted = 0
 )
 insert into Cofoundry.PagePublishStatusQuery (PageId, PublishStatusQueryId, PageVersionId)
@@ -211,7 +211,7 @@ where RowNumber = 1
 	select v.PageId, v.PageVersionId,
 			row_number() over (partition by v.PageId order by v.WorkFlowStatusId, v.CreateDate desc) as RowNumber
 	from Cofoundry.PageVersion v
-	inner join Cofoundry.[Page] p on p.PageId = v.PageId
+	inner join Cofoundry.Page p on p.PageId = v.PageId
 	where v.IsDeleted = 0 and p.IsDeleted = 0
 )
 insert into Cofoundry.PagePublishStatusQuery (PageId, PublishStatusQueryId, PageVersionId)
@@ -237,7 +237,7 @@ where RowNumber = 1
 	select v.PageId, v.PageVersionId,
 			row_number() over (partition by v.PageId order by v.CreateDate desc) as RowNumber
 	from Cofoundry.PageVersion v
-	inner join Cofoundry.[Page] p on p.PageId = v.PageId
+	inner join Cofoundry.Page p on p.PageId = v.PageId
 	where WorkFlowStatusId = 1 and v.IsDeleted = 0 and p.IsDeleted = 0
 )
 insert into Cofoundry.PagePublishStatusQuery (PageId, PublishStatusQueryId, PageVersionId)
@@ -265,7 +265,7 @@ where RowNumber = 1
 	select v.PageId, v.PageVersionId,
 			row_number() over (partition by v.PageId order by v.WorkFlowStatusId desc, v.CreateDate desc) as RowNumber
 	from Cofoundry.PageVersion v
-	inner join Cofoundry.[Page] p on p.PageId = v.PageId
+	inner join Cofoundry.Page p on p.PageId = v.PageId
 	where WorkFlowStatusId in (1, 4) and v.IsDeleted = 0 and p.IsDeleted = 0
 )
 insert into Cofoundry.PagePublishStatusQuery (PageId, PublishStatusQueryId, PageVersionId)
@@ -285,8 +285,8 @@ select CustomEntityId, 3, CustomEntityVersionId
 from CTE_PreferPublishedCustomEntityVersions
 where RowNumber = 1
 
-update Cofoundry.[Page] 
+update Cofoundry.Page 
 set PublishDate = pv.CreateDate
-from Cofoundry.[Page] p
+from Cofoundry.Page p
 inner join Cofoundry.PagePublishStatusQuery q on p.PageId = q.PageId and q.PublishStatusQueryId = 4
 inner join Cofoundry.PageVersion pv on pv.PageVersionId = q.PageVersionId

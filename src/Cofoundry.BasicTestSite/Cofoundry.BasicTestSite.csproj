@@ -17,5 +17,7 @@
     <ProjectReference Include="..\Cofoundry.Web.Admin\Cofoundry.Web.Admin.csproj" />
     <ProjectReference Include="..\Cofoundry.Web\Cofoundry.Web.csproj" />
   </ItemGroup>
+  
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>

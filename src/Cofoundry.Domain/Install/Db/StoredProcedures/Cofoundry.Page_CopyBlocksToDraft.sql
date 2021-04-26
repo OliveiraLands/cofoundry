@@ -19,7 +19,7 @@ begin
 
 	select top 1 @CopyToPageVersionId = PageVersionId 
 		from Cofoundry.PageVersion v
-		inner join Cofoundry.[Page] p on p.PageId = v.PageId
+		inner join Cofoundry.Page p on p.PageId = v.PageId
 		where p.PageId = @CopyToPageId 
 			and WorkFlowStatusId =@DraftWorkFlowStatus
 	

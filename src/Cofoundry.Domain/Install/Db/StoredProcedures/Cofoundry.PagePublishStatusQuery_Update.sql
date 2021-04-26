@@ -14,7 +14,7 @@ begin
 	   select v.PageId, v.PageVersionId,
 			 row_number() over (partition by v.PageId order by v.CreateDate desc) as RowNumber
 	   from Cofoundry.PageVersion v
-	   inner join Cofoundry.[Page] p on p.PageId = v.PageId
+	   inner join Cofoundry.Page p on p.PageId = v.PageId
 	   where v.PageId = @PageId and WorkFlowStatusId = 4 and p.PublishStatusCode = 'P'
 	)
 
@@ -41,7 +41,7 @@ begin
 		select v.PageId, v.PageVersionId,
 				row_number() over (partition by v.PageId order by v.WorkFlowStatusId, v.CreateDate desc) as RowNumber
 		from Cofoundry.PageVersion v
-		inner join Cofoundry.[Page] p on p.PageId = v.PageId
+		inner join Cofoundry.Page p on p.PageId = v.PageId
 		where v.PageId = @PageId
 	)
 	merge into Cofoundry.PagePublishStatusQuery as t
@@ -67,7 +67,7 @@ begin
 	   select v.PageId, v.PageVersionId,
 			 row_number() over (partition by v.PageId order by v.CreateDate desc) as RowNumber
 	   from Cofoundry.PageVersion v
-	   inner join Cofoundry.[Page] p on p.PageId = v.PageId
+	   inner join Cofoundry.Page p on p.PageId = v.PageId
 	   where v.PageId = @PageId and WorkFlowStatusId = 1
 	)
 	merge into Cofoundry.PagePublishStatusQuery as t
@@ -93,7 +93,7 @@ begin
 	   select v.PageId, v.PageVersionId,
 			 row_number() over (partition by v.PageId order by v.WorkFlowStatusId desc, v.CreateDate desc) as RowNumber
 	   from Cofoundry.PageVersion v
-	   inner join Cofoundry.[Page] p on p.PageId = v.PageId
+	   inner join Cofoundry.Page p on p.PageId = v.PageId
 	   where v.PageId = @PageId and WorkFlowStatusId in (1, 4)
 	)
 

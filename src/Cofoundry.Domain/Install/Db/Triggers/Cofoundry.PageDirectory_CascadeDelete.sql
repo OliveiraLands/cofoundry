@@ -25,8 +25,8 @@ begin
 	from Cofoundry.UnstructuredDataDependency e
 	inner join @PageDirectoryToDelete d on e.RootEntityId = d.PageDirectoryId and RootEntityDefinitionCode = @DefinitionCode
 
-    delete Cofoundry.[Page]
-	from Cofoundry.[Page] e
+    delete Cofoundry.Page
+	from Cofoundry.Page e
 	inner join @PageDirectoryToDelete d on e.PageDirectoryId = d.PageDirectoryId
 
     delete Cofoundry.PageDirectoryLocale

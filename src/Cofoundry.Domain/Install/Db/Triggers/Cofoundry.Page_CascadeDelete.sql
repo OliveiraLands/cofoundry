@@ -1,5 +1,5 @@
 create trigger Cofoundry.Page_CascadeDelete
-   on  Cofoundry.[Page]
+   on  Cofoundry.Page
    instead of delete
 AS 
 begin
@@ -33,8 +33,8 @@ begin
 	inner join deleted d on e.PageId = d.PageId
 
 	-- Main Table
-    delete Cofoundry.[Page]
-	from Cofoundry.[Page] e
+    delete Cofoundry.Page
+	from Cofoundry.Page e
 	inner join deleted d on e.PageId = d.PageId
 
 end

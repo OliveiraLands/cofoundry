@@ -25,7 +25,7 @@ begin
 			@CopyFromPageVersionId = PageVersionId,
 			@LatestWorkFlowStatusId = WorkFlowStatusId
 		from Cofoundry.PageVersion v
-		inner join Cofoundry.[Page] p on p.PageId = v.PageId
+		inner join Cofoundry.Page p on p.PageId = v.PageId
 		where p.PageId = @PageId and WorkFlowStatusId in (@DraftWorkFlowStatus, @PublishedWorkFlowStatus)
 		order by 
 			-- prefer published and draft over approved

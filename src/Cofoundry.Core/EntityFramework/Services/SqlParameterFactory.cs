@@ -19,7 +19,7 @@ namespace Cofoundry.Core.EntityFramework.Internal
             { typeof(bool),  DbType.Boolean },
             { typeof(DateTime),  DbType.DateTime2 },
             { typeof(float),  DbType.Double },
-            { typeof(Guid),  DbType.Guid }
+            { typeof(Guid),  DbType.String }
         };
 
         public MySqlParameter CreateOutputParameterByType(string name, Type t)

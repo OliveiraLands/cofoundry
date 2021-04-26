@@ -405,7 +405,7 @@ create table if not exists Cofoundry.PageType (
 );
 
 
-/****** Cofoundry.[Page] ******/
+/****** Cofoundry.Page ******/
 
 create table if not exists Cofoundry.Page (
 
