@@ -10,20 +10,42 @@
  -- 4 Published
  -- 5 Approved
 
+Use Cofoundry;
+
+drop procedure if exists spRecordExists;
+
+Delimiter $$
+Create Procedure spRecordExists( in Comando text, in ErrorMessage varchar(250) ) 
+Begin
+	set @comando = Comando;
+    
+	 prepare stp from @comando;
+     execute stp;
+     
+     if ( Found_Rows() > 0 ) then
+		signal sqlstate value '45000'
+           set Message_Text = ErrorMessage;
+     end if;
+     
+     DEALLOCATE PREPARE stp; 
+end $$
+
+Delimiter ;
+
+-- call  spRecordExists('select * from Cofoundry.User where 1=0', 'error' );
 
  -- ** ValidateData **
 
- if (exists (
-	 select * from Cofoundry.Page p 
-	 left outer join Cofoundry.PageVersion pv on pv.PageId = p.PageId
-	 where pv.WorkFlowStatusId in (1, 4) and PageVersionId is null
-	 )) throw 50000, 'Invalid page version data. Pages must have at least one draft or published version', 1
+ call Cofoundry.spRecordExists( 'select * from Cofoundry.Page p ' 
+      ' left outer join Cofoundry.PageVersion pv on pv.PageId = p.PageId ' 
+	  ' where pv.WorkFlowStatusId in (1, 4) and PageVersionId is null ', 
+      'Invalid page version data. Pages must have at least one draft or published version');
 
- if (exists (
-	 select * from Cofoundry.CustomEntity e 
-	 left outer join Cofoundry.CustomEntityVersion ev on ev.CustomEntityId = e.CustomEntityId
-	 where ev.WorkFlowStatusId in (1, 4) and CustomEntityVersionId is null
-	 )) throw 50000, 'Invalid custom entity version data. Custom entities must have at least one draft or published version', 1
+ 
+call Cofoundry.spRecordExists( 'select * from Cofoundry.CustomEntity e '
+	 ' left outer join Cofoundry.CustomEntityVersion ev on ev.CustomEntityId = e.CustomEntityId '
+	 ' where ev.WorkFlowStatusId in (1, 4) and CustomEntityVersionId is null ',
+	 'Invalid custom entity version data. Custom entities must have at least one draft or published version');
 	
 	 
  -- ** PublishStatus **
@@ -33,31 +55,30 @@ create table Cofoundry.PublishStatus (
 	Name varchar(20) not null,
 
 	constraint PK_PublishStatus primary key (PublishStatusCode)
-)
-go
+);
 
-create unique index UIX_PublishStatus_Name on Cofoundry.PublishStatus (Name)
 
-go
+create unique index UIX_PublishStatus_Name on Cofoundry.PublishStatus (Name);
 
-insert into Cofoundry.PublishStatus (PublishStatusCode, Name) values ('U', 'Unpublished')
-insert into Cofoundry.PublishStatus (PublishStatusCode, Name) values ('P', 'Published')
 
-go
 
-alter table Cofoundry.Page add PublishStatusCode char(1) null
-alter table Cofoundry.Page add PublishDate datetime2(7) null
-alter table Cofoundry.Page add constraint FK_Page_PublishStatus foreign key (PublishStatusCode) references Cofoundry.PublishStatus (PublishStatusCode)
+insert into Cofoundry.PublishStatus (PublishStatusCode, Name) values ('U', 'Unpublished');
+insert into Cofoundry.PublishStatus (PublishStatusCode, Name) values ('P', 'Published');
 
-alter table Cofoundry.CustomEntity add PublishStatusCode char(1) null
-alter table Cofoundry.CustomEntity add PublishDate datetime2(7) null
-alter table Cofoundry.CustomEntity add constraint FK_CustomEntity_PublishStatus foreign key (PublishStatusCode) references Cofoundry.PublishStatus (PublishStatusCode)
 
-go
+alter table Cofoundry.Page add PublishStatusCode char(1) null;
+alter table Cofoundry.Page add PublishDate datetime null;
+alter table Cofoundry.Page add constraint FK_Page_PublishStatus foreign key (PublishStatusCode) references Cofoundry.PublishStatus (PublishStatusCode);
+
+
+alter table Cofoundry.CustomEntity add PublishStatusCode char(1) null;
+alter table Cofoundry.CustomEntity add PublishDate datetime null;
+alter table Cofoundry.CustomEntity add constraint FK_CustomEntity_PublishStatus foreign key (PublishStatusCode) references Cofoundry.PublishStatus (PublishStatusCode);
+
 
 -- ** Update PublishStatus: Pages **
 
-;with CTE_LatestPageVersions as
+with CTE_LatestPageVersions as
 (
    select PageId, WorkFlowStatusId, CreateDate,
          row_number() over (partition by PageId order by WorkFlowStatusId desc) as RowNumber
