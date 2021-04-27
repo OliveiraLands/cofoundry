@@ -3,20 +3,19 @@
 */
 
  create table Cofoundry.AssetFileCleanupQueueItem (
-	AssetFileCleanupQueueItemId int identity(1,1) not null,
+	AssetFileCleanupQueueItemId int AUTO_INCREMENT not null,
 	EntityDefinitionCode char(6) not null,
 	FileNameOnDisk varchar(50) not null,
 	FileExtension nvarchar(30) not null,
-	CreateDate datetime2(4) not null,
-	LastAttemptDate datetime2(4) null,
-	CompletedDate datetime2(4) null,
+	CreateDate datetime not null,
+	LastAttemptDate datetime null,
+	CompletedDate datetime null,
 	CanRetry bit not null,
-	AttemptPermittedDate datetime2(4) not null,
+	AttemptPermittedDate datetime not null,
 
 	constraint PK_AssetFileCleanupQueueItem primary key (AssetFileCleanupQueueItemId),
 	constraint FK_AssetFileCleanupQueueItem_EntityDefinition foreign key (EntityDefinitionCode) references Cofoundry.EntityDefinition (EntityDefinitionCode)
-)
-go
+);
 
  -- insert soft-deleted items into the queue
 
@@ -28,9 +27,10 @@ go
 	CanRetry,
 	AttemptPermittedDate
  ) 
- select 'COFIMG', convert(varchar(50), ImageAssetId), Extension, GetUTCDate(), 1, GetUTCDate()
+ select 'COFIMG', convert(ImageAssetId, char(50)), Extension, now(), 1, Now()
  from Cofoundry.ImageAsset
- where IsDeleted = 1
+ where IsDeleted = 1;
+ 
 
  insert into Cofoundry.AssetFileCleanupQueueItem (
 	EntityDefinitionCode,
@@ -40,85 +40,82 @@ go
 	CanRetry,
 	AttemptPermittedDate
  ) 
- select 'COFDOC', convert(varchar(50), DocumentAssetId), FileExtension, GetUTCDate(), 1, GetUTCDate()
+ select 'COFDOC', convert(DocumentAssetId, char(50)), FileExtension, Now(), 1, Now()
  from Cofoundry.DocumentAsset
- where IsDeleted = 1
+ where IsDeleted = 1;
 
-go
 
 /* 
 	#33 Make Image Asset Files Permanently Cachable
 */
 
 -- Also remove soft deletes & tidy naming
-delete from Cofoundry.ImageAsset where IsDeleted = 1
-delete from Cofoundry.DocumentAsset where IsDeleted = 1
+delete from Cofoundry.ImageAsset where IsDeleted = 1;
+delete from Cofoundry.DocumentAsset where IsDeleted = 1;
 
-go
 
-alter table Cofoundry.ImageAsset drop column IsDeleted
-alter table Cofoundry.DocumentAsset drop constraint DF_DocumentAsset_IsDeleted
-alter table Cofoundry.DocumentAsset drop column IsDeleted
-alter table Cofoundry.ImageAsset alter column FileSize bigint not null
-alter table Cofoundry.ImageAsset alter column FileDescription nvarchar(max) not null
-alter table Cofoundry.DocumentAsset alter column [Title] nvarchar(130) not null
-alter table Cofoundry.DocumentAsset alter column FileName nvarchar(130) not null
-alter table Cofoundry.ImageAsset alter column FileName nvarchar(130) not null
-alter table Cofoundry.ImageAsset add [Title] nvarchar(130) null
-alter table Cofoundry.ImageAsset alter column Extension nvarchar(30) not null
+alter table Cofoundry.ImageAsset drop column IsDeleted;
+-- alter table Cofoundry.DocumentAsset drop constraint DF_DocumentAsset_IsDeleted;
+alter table Cofoundry.DocumentAsset drop column IsDeleted;
+alter table Cofoundry.ImageAsset modify column FileSize bigint not null;
+alter table Cofoundry.ImageAsset modify column FileDescription text not null;
+alter table Cofoundry.DocumentAsset modify column Title nvarchar(130) not null;
+alter table Cofoundry.DocumentAsset modify column FileName nvarchar(130) not null;
+alter table Cofoundry.ImageAsset modify column FileName nvarchar(130) not null;
+alter table Cofoundry.ImageAsset add Title nvarchar(130) null;
+alter table Cofoundry.ImageAsset modify column Extension nvarchar(30) not null;
 
-alter table Cofoundry.ImageAsset add FileUpdateDate datetime2(4) null
-alter table Cofoundry.DocumentAsset add FileUpdateDate datetime2(4) null
-alter table Cofoundry.DocumentAsset alter column UpdateDate datetime2(4) not null
-alter table Cofoundry.DocumentAsset add FileNameOnDisk varchar(50) null
-alter table Cofoundry.ImageAsset add FileNameOnDisk varchar(50) null
-alter table Cofoundry.ImageAsset add VerificationToken char(6) null
-alter table Cofoundry.DocumentAsset add VerificationToken char(6) null
-go
+alter table Cofoundry.ImageAsset add FileUpdateDate datetime null;
+alter table Cofoundry.DocumentAsset add FileUpdateDate datetime null;
+alter table Cofoundry.DocumentAsset modify column UpdateDate datetime not null;
+alter table Cofoundry.DocumentAsset add FileNameOnDisk varchar(50) null;
+alter table Cofoundry.ImageAsset add FileNameOnDisk varchar(50) null;
+alter table Cofoundry.ImageAsset add VerificationToken char(6) null;
+alter table Cofoundry.DocumentAsset add VerificationToken char(6) null;
+
 
 update Cofoundry.ImageAsset set 
 	-- App command is limited to 120 so there shouldn't be any long data in there
-	[Title] = cast(FileDescription as nvarchar(130)), 
+	Title = FileDescription, 
 	FileUpdateDate = UpdateDate,
-	FileNameOnDisk = convert(varchar(50), ImageAssetId),
+	FileNameOnDisk = ImageAssetId,
 	-- Verification token is just to prevent enumeration and so doesn't have to be very unique
-	VerificationToken = substring(convert(varchar(50), NewId()), 0, 7)
+	VerificationToken = substring( convert(uuid(), char), 0, 7);
 
 update Cofoundry.DocumentAsset set 
 	FileUpdateDate = UpdateDate,
-	FileNameOnDisk = convert(varchar(50), DocumentAssetId),
-	VerificationToken = substring(convert(varchar(50), NewId()), 0, 7)
+	FileNameOnDisk = DocumentAssetId,
+	VerificationToken = substring(convert(uuid(), char), 0, 7);
 
-go
+alter table Cofoundry.ImageAsset drop column FileDescription;
+alter table Cofoundry.ImageAsset modify column Title nvarchar(130) not null;
+alter table Cofoundry.DocumentAsset modify column FileUpdateDate datetime not null;
+alter table Cofoundry.ImageAsset modify column FileUpdateDate datetime not null;
+alter table Cofoundry.DocumentAsset modify column FileNameOnDisk varchar(50) not null;
+alter table Cofoundry.ImageAsset modify column FileNameOnDisk varchar(50) not null;
+alter table Cofoundry.ImageAsset modify column VerificationToken char(6) not null;
+alter table Cofoundry.DocumentAsset modify column VerificationToken char(6) not null;
 
-alter table Cofoundry.ImageAsset drop column [FileDescription]
-alter table Cofoundry.ImageAsset alter column [Title] nvarchar(130) not null
-alter table Cofoundry.DocumentAsset alter column FileUpdateDate datetime2(4) not null
-alter table Cofoundry.ImageAsset alter column FileUpdateDate datetime2(4) not null
-alter table Cofoundry.DocumentAsset alter column FileNameOnDisk varchar(50) not null
-alter table Cofoundry.ImageAsset alter column FileNameOnDisk varchar(50) not null
-alter table Cofoundry.ImageAsset alter column VerificationToken char(6) not null
-alter table Cofoundry.DocumentAsset alter column VerificationToken char(6) not null
-go
 
 -- Improve naming
-exec sp_rename 'Cofoundry.ImageAsset.Width' , 'WidthInPixels', 'column'
-go
-exec sp_rename 'Cofoundry.ImageAsset.Height' , 'HeightInPixels', 'column'
-go
-exec sp_rename 'Cofoundry.ImageAsset.Extension' , 'FileExtension', 'column'
-go
-exec sp_rename 'Cofoundry.ImageAsset.FileSize' , 'FileSizeInBytes', 'column'
-go
+alter table Cofoundry.ImageAsset rename column Width to WidthInPixels;
+
+alter table Cofoundry.ImageAsset rename column Height to HeightInPixels;
+
+alter table Cofoundry.ImageAsset rename column Extension to FileExtension;
+
+alter table Cofoundry.ImageAsset rename column FileSize to FileSizeInBytes;
+
 
 /* 
 	#257 Remove soft-deletes 
 */
 
-delete from Cofoundry.Page where IsDeleted = 1
-delete from Cofoundry.PageGroup where IsDeleted = 1
-delete from Cofoundry.ImageAssetGroup where IsDeleted = 1
-delete from Cofoundry.DocumentAssetGroup where IsDeleted = 1
+delete from Cofoundry.Page where IsDeleted = 1;
+delete from Cofoundry.PageGroup where IsDeleted = 1;
+delete from Cofoundry.ImageAssetGroup where IsDeleted = 1;
+delete from Cofoundry.DocumentAssetGroup where IsDeleted = 1;
+
 
 -- ** Start Delete PageDirectories
 -- NB: trigger wont be in place so we need to manually delete dependencies
