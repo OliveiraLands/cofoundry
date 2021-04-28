@@ -1,4 +1,4 @@
-﻿/* 
+/* 
 	Refactoring of WorkFlowStatus to improve speed of content version lookups and open
 	the door to future workflow features and improvements.
  */

@@ -42,15 +42,12 @@ namespace Cofoundry.Domain.Installation
                 {
                     var entityDefinition = ((IEntityPermission)permission).EntityDefinition;
 
-                    sb.AppendLine(string.Format("if not exists (select * from Cofoundry.[EntityDefinition] where EntityDefinitionCode = '{0}')", entityDefinition.EntityDefinitionCode));
-                    sb.AppendLine("begin");
-                    sb.AppendLine(string.Format("insert into Cofoundry.[EntityDefinition] (EntityDefinitionCode, Name) values ('{0}', '{1}')", entityDefinition.EntityDefinitionCode, entityDefinition.Name));
-                    sb.AppendLine("end");
-                    sb.AppendLine(string.Format("insert into Cofoundry.[Permission] (EntityDefinitionCode, PermissionCode) values ('{0}', '{1}')", entityDefinition.EntityDefinitionCode, permission.PermissionType.Code));
+                    sb.AppendLine(string.Format("replace into Cofoundry.EntityDefinition (EntityDefinitionCode, Name) values ('{0}', '{1}');", entityDefinition.EntityDefinitionCode, entityDefinition.Name));
+                    sb.AppendLine(string.Format("insert into Cofoundry.Permission (EntityDefinitionCode, PermissionCode) values ('{0}', '{1}');", entityDefinition.EntityDefinitionCode, permission.PermissionType.Code));
                 }
                 else
                 {
-                    sb.AppendLine(string.Format("insert into Cofoundry.[Permission] (PermissionCode) values ('{0}')", permission.PermissionType.Code));
+                    sb.AppendLine(string.Format("insert into Cofoundry.Permission (PermissionCode) values ('{0}');", permission.PermissionType.Code));
                 }
             }
 

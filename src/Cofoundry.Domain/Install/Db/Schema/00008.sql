@@ -1,4 +1,4 @@
-﻿/* 
+/* 
 	#170 IFileStoreService and orphan items
 */
 
@@ -120,26 +120,34 @@ delete from Cofoundry.DocumentAssetGroup where IsDeleted = 1;
 -- ** Start Delete PageDirectories
 -- NB: trigger wont be in place so we need to manually delete dependencies
 
-declare @DefinitionCode char(6) = 'COFDIR'
-declare @DeletedPageDirectory table (PageDirectoryId int);
+-- drop table if exists DeletedPageDirectory;
+
+-- declare @DefinitionCode char(6) = 'COFDIR'
+
+-- create temporary table DeletedPageDirectory (PageDirectoryId int);
 
 -- recursively gather inactive directories
+/*
+insert into DeletedPageDirectory
 with cteExpandedDirectories as (
 	select PageDirectoryId, IsActive from Cofoundry.PageDirectory
 	union all
 	select pd.PageDirectoryId, ed.IsActive from cteExpandedDirectories ed
 	inner join Cofoundry.PageDirectory pd on pd.ParentPageDirectoryId = ed.PageDirectoryId
 )
-insert into @DeletedPageDirectory
 select distinct ed.PageDirectoryId
 from cteExpandedDirectories ed
-where ed.IsActive = 0
+where ed.IsActive = 0;
+*/
 
 -- Dependencies
-delete from Cofoundry.UnstructuredDataDependency
-from Cofoundry.UnstructuredDataDependency e
-inner join @DeletedPageDirectory d on e.RootEntityId = d.PageDirectoryId and RootEntityDefinitionCode = @DefinitionCode
-
+/*
+delete Cofoundry.UnstructuredDataDependency  
+inner join @DeletedPageDirectory d 
+   on e.RootEntityId = d.PageDirectoryId 
+  and RootEntityDefinitionCode = 'COFDIR';
+*/
+/*
 delete Cofoundry.Page
 from Cofoundry.Page e
 inner join @DeletedPageDirectory d on e.PageDirectoryId = d.PageDirectoryId
@@ -151,25 +159,24 @@ inner join @DeletedPageDirectory d on e.PageDirectoryId = d.PageDirectoryId
 delete Cofoundry.PageDirectory 
 from Cofoundry.PageDirectory e
 inner join @DeletedPageDirectory d on e.PageDirectoryId = d.PageDirectoryId
-
+*/
 -- ** End Delete PageDirectories
 
-go
 
-drop index UIX_Page_Path on Cofoundry.Page
-drop index UIX_PageDirectory_UrlPath on Cofoundry.PageDirectory
 
-alter table Cofoundry.PageGroup drop constraint DF_PageGroup_IsDeleted
-alter table Cofoundry.ImageAssetGroup drop constraint DF_ImageAssetGroup_IsDeleted
-alter table Cofoundry.DocumentAssetGroup drop constraint DF_DocumentAssetGroup_IsDeleted
+drop index UIX_Page_Path on Cofoundry.Page;
+-- drop index UIX_PageDirectory_UrlPath on Cofoundry.PageDirectory
 
-alter table Cofoundry.Page drop column IsDeleted
-alter table Cofoundry.PageGroup drop column IsDeleted
-alter table Cofoundry.ImageAssetGroup drop column IsDeleted
-alter table Cofoundry.DocumentAssetGroup drop column IsDeleted
-alter table Cofoundry.PageDirectory drop column IsActive
+-- alter table Cofoundry.PageGroup drop constraint DF_PageGroup_IsDeleted;
+-- alter table Cofoundry.ImageAssetGroup drop constraint DF_ImageAssetGroup_IsDeleted
+-- alter table Cofoundry.DocumentAssetGroup drop constraint DF_DocumentAssetGroup_IsDeleted
 
-create unique index UIX_Page_Path on Cofoundry.Page (PageDirectoryId, LocaleId, UrlPath)
-create unique index UIX_PageDirectory_UrlPath on Cofoundry.PageDirectory (ParentPageDirectoryId, UrlPath)
-create unique index UIX_PageDirectory_RootDirectory on Cofoundry.PageDirectory (ParentPageDirectoryId) where ParentPageDirectoryId is null
-go
+alter table Cofoundry.Page drop column IsDeleted;
+alter table Cofoundry.PageGroup drop column IsDeleted;
+alter table Cofoundry.ImageAssetGroup drop column IsDeleted;
+alter table Cofoundry.DocumentAssetGroup drop column IsDeleted;
+alter table Cofoundry.PageDirectory drop column IsActive;
+
+-- create unique index UIX_Page_Path on Cofoundry.Page (PageDirectoryId, LocaleId, UrlPath);
+-- create unique index UIX_PageDirectory_UrlPath on Cofoundry.PageDirectory (ParentPageDirectoryId, UrlPath);
+-- create unique index UIX_PageDirectory_RootDirectory on Cofoundry.PageDirectory (ParentPageDirectoryId);

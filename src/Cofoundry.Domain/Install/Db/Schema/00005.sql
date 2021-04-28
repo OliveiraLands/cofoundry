@@ -196,10 +196,10 @@ delete from Cofoundry.PageBlockType where PageBlockTypeId in ( Select PageBlockT
 
 -- recreate indexes
 
-drop index UIX_PageTemplate_FullPath on Cofoundry.PageTemplate;
-drop index UIX_PageTemplate_Name on Cofoundry.PageTemplate;
+-- drop index UIX_PageTemplate_FullPath on Cofoundry.PageTemplate;
+-- drop index UIX_PageTemplate_Name on Cofoundry.PageTemplate;
 -- drop index UIX_PageTemplateRegion_Name on Cofoundry.PageTemplateRegion;
-drop index UIX_PageBlockType_Name on Cofoundry.PageBlockType;
+-- drop index UIX_PageBlockType_Name on Cofoundry.PageBlockType;
 drop index UIX_User_IsSystemAccount on Cofoundry.User;
 
 

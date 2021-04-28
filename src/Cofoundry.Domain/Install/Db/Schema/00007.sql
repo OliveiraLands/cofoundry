@@ -1,4 +1,4 @@
-﻿/* 
+/* 
 	#225 Increase the size of the CustomEntityModelType field in the PageTemplate 
 	table to account for longer namespaces
  */
