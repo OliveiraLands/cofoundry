@@ -307,7 +307,7 @@ namespace Cofoundry.Core.AutoUpdate.Internal
 
             var isLocked = await _db.ReadAsync(query, (r) =>
             {
-                return (bool)r["IsLocked"];
+                return (UInt64)r["IsLocked"] == 1;
             });
 
             return isLocked.FirstOrDefault();
@@ -320,7 +320,7 @@ namespace Cofoundry.Core.AutoUpdate.Internal
         public Task SetLockedAsync(bool isLocked)
         {
             var cmd = "update Cofoundry.AutoUpdateLock set IsLocked = @IsLocked";
-            return _db.ExecuteAsync(cmd, new MySqlParameter("@IsLocked", isLocked));
+            return _db.ExecuteAsync(cmd, new MySqlParameter("@IsLocked", ( isLocked ? 1 : 0)));
         }
 
         #endregion
